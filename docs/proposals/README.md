@@ -15,7 +15,8 @@ Index of all Morpheum WASM VM (MWVM) design proposals, with links to supporting 
 | **draft5** | [draft5-v2.0.md](./draft5-v2.0.md) | **MWVM v2.0** | Production spec: DAG-native optimizations, 28 Host API functions |
 | **draft6** | [draft6-v2.1.md](./draft6-v2.1.md) | **MWVM v2.1** | Agentic extensions: `agent_publish`, `ai_infer`, swarm parallelism |
 | **draft7** | [draft7-v2.2.md](./draft7-v2.2.md) | **MWVM v2.2** | Permissionless safety: `set_safe_mode`, `get_call_depth`, reentrancy guards |
-| **draft8** | [draft8-v2.3.md](./draft8-v2.3.md) | **MWVM v2.3** *(current)* | Native upgrade & migration: stable contract address, changelog, `migrate` entry point |
+| **draft8** | [draft8-v2.3.md](./draft8-v2.3.md) | **MWVM v2.3** | Native upgrade & migration: stable contract address, changelog, `migrate` entry point |
+| **draft9** | [draft9-v2.4.md](./draft9-v2.4.md) | **MWVM v2.4** *(current)* | KYA/DID + VC delegation: `did_validate`, `vc_verify`, `vp_present`, `check_delegation_scope`, `revoke_vc`, x402 micropayments |
 
 ---
 
@@ -27,7 +28,7 @@ These documents define the core architecture that all MWVM versions build on.
 |----------|---------|----------|
 | [io.md](./io.md) | Load/write/execute, race prevention, MVCC + Block-STM | Explains why WASM has no persistent storage; object-centric design; DAG causal order |
 | [storage.md](./storage.md) | WASM storage model | Linear memory vs host-provided KV; CosmWasm, NEAR, Substrate comparison |
-| [keyhost.md](./keyhost.md) | Host API (28+ functions) | Object management, DAG context, idempotency, oracle, staking, crosschain |
+| [keyhost.md](./keyhost.md) | Host API (43+ functions) | Object management, DAG context, idempotency, oracle, staking, crosschain, KYA/delegation |
 | [vm-2.md](./vm-2.md) | v2.0 compatibility matrix | Maps io, storage, keyhost, cost to v2.0 implementation |
 | [comparison.md](./comparison.md) | VM comparison | ZK Cairo vs Move vs WASM — design philosophy, performance, security |
 
@@ -37,8 +38,8 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Document | Decision | Rationale |
 |----------|----------|-----------|
-| [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) | **No OpenZeppelin-style upgrade complexity** | Object-centric model avoids storage slots, proxies, delegatecall; v2.3 adds native migration instead |
-| [sdk-opensource.md](./sdk-opensource.md) | **morpheum_std SDK design** | High-level wrappers over 28+ Host APIs; Rust primary, Go secondary; Mormtest integration |
+| [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) | **No OpenZeppelin-style upgrade complexity** | Object-centric model avoids storage slots, proxies, delegatecall; v2.3 native migration; v2.4 KYA/DID delegation |
+| [sdk-opensource.md](./sdk-opensource.md) | **morpheum_std SDK design** | High-level wrappers over 43+ Host APIs; Rust primary, Go secondary; Mormtest integration |
 
 ---
 
@@ -54,7 +55,7 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Need | Start Here |
 |------|------------|
-| Current production spec | [draft8-v2.3.md](./draft8-v2.3.md) |
+| Current production spec | [draft9-v2.4.md](./draft9-v2.4.md) |
 | Host API reference | [keyhost.md](./keyhost.md) |
 | Why object-centric + MVCC | [io.md](./io.md) |
 | Why no EVM-style upgrades | [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) |
@@ -81,6 +82,7 @@ flowchart TB
         d6[draft6 v2.1]
         d7[draft7 v2.2]
         d8[draft8 v2.3]
+        d9[draft9 v2.4]
     end
 
     subgraph Decisions["Decisions"]
@@ -92,7 +94,8 @@ flowchart TB
     storage --> d2
     keyhost --> d5
     vm2 --> d5
-    d5 --> d6 --> d7 --> d8
+    d5 --> d6 --> d7 --> d8 --> d9
     noevm --> d8
+    noevm --> d9
     keyhost --> sdk
 ```

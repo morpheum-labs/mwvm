@@ -1,7 +1,7 @@
 # Morpheum WASM VM (MWVM) Documentation
 
-**Version**: 2.0 (February 2026)  
-**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery, Constitutional Amendment.
+**Version**: 2.4 (February 2026)  
+**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery, Constitutional Amendment, KYA/DID Delegation.
 
 ---
 
@@ -14,6 +14,7 @@ MWVM is the **production-ready WebAssembly smart contract VM** for the Morpheum 
 - **Gasless + deposit model** — Refundable storage deposits instead of execution gas
 - **Agentic-first** — Idempotency keys, safe retries, multi-agent workflows
 - **Host-mediated security** — All I/O via sandboxed Host API; WASM = pure compute
+- **KYA/DID delegation** — Scoped, revocable agent authorization via Verifiable Credentials (v2.4)
 
 ```mermaid
 flowchart TB
@@ -43,19 +44,19 @@ flowchart TB
 
 ## Documentation Index
 
-### [Design](./design/)
+### [Proposals](./proposals/)
 
-Architecture, storage model, I/O, Host API, and VM comparison.
+Design proposals, version progression (draft1–draft9), and foundational architecture. **Start here**: [proposals/README.md](./proposals/README.md).
 
 | Document | Description |
 |----------|-------------|
-| [vm-2.md](./design/vm-2.md) | **MWVM v2.0 spec** — DAG-native optimizations, Host API, Flash path |
-| [draft5.md](./design/draft5.md) | Production-ready MWVM specification for Mormcore |
-| [keyhost.md](./design/keyhost.md) | **Host API** — 28+ functions (object_*, idempotency, oracle, staking, crosschain, ZK/TEE/FHE) |
-| [io.md](./design/io.md) | Load/write/execute, race prevention, MVCC + Block-STM, nonce design |
-| [storage.md](./design/storage.md) | WASM storage model — linear memory + host-provided object/KV |
-| [comparison.md](./design/comparison.md) | ZK Cairo vs Move vs WASM VM comparison |
-| [draft1.md](./design/draft1.md) – [draft4.md](./design/draft4.md) | Earlier design iterations |
+| [draft9-v2.4.md](./proposals/draft9-v2.4.md) | **MWVM v2.4 (current)** — KYA/DID + VC delegation, 43+ Host API functions |
+| [draft8-v2.3.md](./proposals/draft8-v2.3.md) | MWVM v2.3 — Native upgrade & migration, stable contract address |
+| [keyhost.md](./proposals/keyhost.md) | **Host API** — 43+ functions (object_*, idempotency, oracle, staking, crosschain, KYA/delegation) |
+| [io.md](./proposals/io.md) | Load/write/execute, race prevention, MVCC + Block-STM, nonce design |
+| [storage.md](./proposals/storage.md) | WASM storage model — linear memory + host-provided object/KV |
+| [vm-2.md](./proposals/vm-2.md) | v2.0 compatibility matrix |
+| [comparison.md](./proposals/comparison.md) | ZK Cairo vs Move vs WASM VM comparison |
 
 ### [Cost](./cost/)
 
@@ -92,8 +93,9 @@ MormTest — local WASM testing, agentic workflows, MCP.
 
 | Concept | Reference |
 |---------|-----------|
-| Host API (28+ functions) | [keyhost.md](./design/keyhost.md) |
-| Object model + MVCC | [io.md](./design/io.md), [storage.md](./design/storage.md) |
+| Current production spec | [draft9-v2.4.md](./proposals/draft9-v2.4.md) |
+| Host API (43+ functions) | [keyhost.md](./proposals/keyhost.md) |
+| Object model + MVCC | [io.md](./proposals/io.md), [storage.md](./proposals/storage.md) |
 | Deployment flow | [cost.md](./cost/cost.md) |
 | Cost formulas | [cost-driver.md](./cost/cost-driver.md) |
 | Local testing | [test-framework.md](./test-framework/test-framework.md), [morm-test.md](./test-framework/morm-test.md) |

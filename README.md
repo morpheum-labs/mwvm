@@ -8,7 +8,7 @@ MWVM executes WASM smart contracts on Morpheum with:
 
 - **DAG-native execution** — Causal snapshots from blocklace; Block-STM parallel scheduler; Flash path for sub-3δ finality
 - **Object-centric MVCC** — Versioned objects (ID + Owner + Version + Data); no global shared mutable state
-- **28+ Host API functions** — Object ops, idempotency, oracle, staking/restaking, crosschain, ZK/TEE/FHE
+- **43+ Host API functions** — Object ops, idempotency, oracle, staking/restaking, crosschain, KYA/DID delegation, ZK/TEE/FHE
 - **Gasless + deposit** — Refundable storage deposit (1 $MORPH / 100 KB); no execution gas
 - **Agentic-first** — Idempotency keys, safe retries, multi-agent testing via MormTest + MCP
 
@@ -18,7 +18,7 @@ All design, cost, MEV, and test-framework documentation lives in [`docs/`](./doc
 
 | Section | Contents |
 |---------|----------|
-| [**Design**](./docs/design/) | VM spec, Host API, storage, I/O, race prevention, VM comparison |
+| [**Proposals**](./docs/proposals/) | Design proposals, VM spec (v2.4), Host API, storage, I/O, KYA/DID delegation |
 | [**Cost**](./docs/cost/) | Deployment flow, storage deposits, cost formulas |
 | [**MEV**](./docs/mev/) | MEV analysis: WASM vs EVM |
 | [**Test Framework**](./docs/test-framework/) | MormTest, agentic testing, MCP protocol |
