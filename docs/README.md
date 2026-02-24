@@ -1,7 +1,7 @@
 # Morpheum WASM VM (MWVM) Documentation
 
-**Version**: 2.4 (February 2026)  
-**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery, Constitutional Amendment, KYA/DID Delegation.
+**Version**: 2.6 (February 2026)  
+**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery, Constitutional Amendment, KYA/DID Delegation, Bucket-as-Service (BaS).
 
 ---
 
@@ -14,7 +14,7 @@ MWVM is the **production-ready WebAssembly smart contract VM** for the Morpheum 
 - **Gasless + deposit model** — Refundable storage deposits instead of execution gas
 - **Agentic-first** — Idempotency keys, safe retries, multi-agent workflows
 - **Host-mediated security** — All I/O via sandboxed Host API; WASM = pure compute
-- **KYA/DID delegation** — Scoped, revocable agent authorization via Verifiable Credentials (v2.4)
+- **KYA/DID delegation** — Scoped, revocable agent authorization via Verifiable Credentials; Safe Native Infrastructure Wrappers (v2.5+); Bucket-as-Service policy (v2.6)
 
 ```mermaid
 flowchart TB
@@ -46,11 +46,13 @@ flowchart TB
 
 ### [Proposals](./proposals/)
 
-Design proposals, version progression (draft1–draft9), and foundational architecture. **Start here**: [proposals/README.md](./proposals/README.md).
+Design proposals, version progression (draft1–draft11), and foundational architecture. **Start here**: [proposals/README.md](./proposals/README.md).
 
 | Document | Description |
 |----------|-------------|
-| [draft9-v2.4.md](./proposals/draft9-v2.4.md) | **MWVM v2.4 (current)** — KYA/DID + VC delegation, 43+ Host API functions |
+| [draft11-v2.6.md](./proposals/draft11-v2.6.md) | **MWVM v2.6 (current)** — Bucket-as-Service policy, Safe Native Infrastructure Wrappers |
+| [draft10-v2.5.md](./proposals/draft10-v2.5.md) | MWVM v2.5 — Host API security review, permission model, Safe Wrappers |
+| [draft9-v2.4.md](./proposals/draft9-v2.4.md) | MWVM v2.4 — KYA/DID + VC delegation, 43+ Host API functions |
 | [draft8-v2.3.md](./proposals/draft8-v2.3.md) | MWVM v2.3 — Native upgrade & migration, stable contract address |
 | [keyhost.md](./proposals/keyhost.md) | **Host API** — 43+ functions (object_*, idempotency, oracle, staking, crosschain, KYA/delegation) |
 | [io.md](./proposals/io.md) | Load/write/execute, race prevention, MVCC + Block-STM, nonce design |
@@ -75,6 +77,41 @@ Security reviews, permission models, and safe-access patterns.
 |----------|-------------|
 | [vm-security-review.md](./securities/vm-security-review.md) | Host API security review — risk levels, countermeasures, permission model |
 | [security-concern-agents.md](./securities/security-concern-agents.md) | Safe agent access — CLAMM via KYA/VC, native Msg, multisig |
+
+### [Bucket-as-Service (BaS)](./bucket-as-service/)
+
+Agent-deployed structural products (position-backed, asset-backed, mix-backed) on secondary/P2P markets.
+
+| Document | Description |
+|----------|-------------|
+| [README.md](./bucket-as-service/README.md) | **BaS index** — Rule set, business model, security, index funds |
+| [design.md](./bucket-as-service/design.md) | BaS rule set — creation, listing, trading, exploit countermeasures |
+| [business-model.md](./bucket-as-service/business-model.md) | Strategic blueprint — agents as issuers, $MORM flywheel |
+
+### [A2A](./a2a/)
+
+Agent-to-Agent flows, WASM templates, and ecosystem strategy.
+
+| Document | Description |
+|----------|-------------|
+| [README.md](./a2a/README.md) | **A2A index** — WASM templates, Bucket/CLAMM integration, Virtuals/Fetch.ai strategy |
+| [a2a-wasm-templates.md](./a2a/a2a-wasm-templates.md) | 8 pre-built A2A modules (DataSale, SwarmCoord, TaskDelegate, etc.) |
+| [a2a-bucket-templates.md](./a2a/a2a-bucket-templates.md) | BaS + CLAMM integration for A2A buckets |
+| [critical-features.md](./a2a/critical-features.md) | Must-build features before ecosystem launch |
+| [fetchai.md](./a2a/fetchai.md), [against-virtual.md](./a2a/against-virtual.md) | Market positioning and adoption strategy |
+
+### [Governance](./govnerment/)
+
+Hybrid native/WASM governance model, Step 9 amendments, and constitutional proposals.
+
+| Document | Description |
+|----------|-------------|
+| [README.md](./govnerment/README.md) | **Governance index** — Design rationale, MORP-GOV proposals, overlap penalties |
+| [design.md](./govnerment/design.md) | Why hybrid (not pure WASM); security model; $MORM value drivers |
+| [hypbrid-governance.md](./govnerment/hypbrid-governance.md) | Native vs WASM scope; safe integration via KYA/VC |
+| [MORP-GOV-001.md](./govnerment/MORP-GOV-001.md) | BaS launch — constitutional parameters, proposal templates |
+| [MORP-GOV-2026-02.md](./govnerment/MORP-GOV-2026-02.md), [MORP-GOV-2026-03.md](./govnerment/MORP-GOV-2026-03.md) | CLAMM/Bucket A2A VC claims and quotas |
+| [BA-OVERLAP-PENALTY-001.md](./govnerment/BA-OVERLAP-PENALTY-001.md) | Economic penalties for overlapping WASM features |
 
 ### [MEV](./mev/)
 
@@ -102,7 +139,7 @@ MormTest — local WASM testing, agentic workflows, MCP.
 
 | Concept | Reference |
 |---------|-----------|
-| Current production spec | [draft9-v2.4.md](./proposals/draft9-v2.4.md) |
+| Current production spec | [draft11-v2.6.md](./proposals/draft11-v2.6.md) |
 | Host API (43+ functions) | [keyhost.md](./proposals/keyhost.md) |
 | Object model + MVCC | [io.md](./proposals/io.md), [storage.md](./proposals/storage.md) |
 | Deployment flow | [cost.md](./cost/cost.md) |
@@ -110,3 +147,4 @@ MormTest — local WASM testing, agentic workflows, MCP.
 | Local testing | [test-framework.md](./test-framework/test-framework.md), [morm-test.md](./test-framework/morm-test.md) |
 | Agentic / MCP | [mcp-feature.md](./test-framework/mcp-feature.md) |
 | Security & permission model | [securities/README.md](./securities/README.md) |
+| Bucket-as-Service (BaS) | [bucket-as-service/README.md](./bucket-as-service/README.md) |

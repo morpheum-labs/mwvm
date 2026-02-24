@@ -16,7 +16,9 @@ Index of all Morpheum WASM VM (MWVM) design proposals, with links to supporting 
 | **draft6** | [draft6-v2.1.md](./draft6-v2.1.md) | **MWVM v2.1** | Agentic extensions: `agent_publish`, `ai_infer`, swarm parallelism |
 | **draft7** | [draft7-v2.2.md](./draft7-v2.2.md) | **MWVM v2.2** | Permissionless safety: `set_safe_mode`, `get_call_depth`, reentrancy guards |
 | **draft8** | [draft8-v2.3.md](./draft8-v2.3.md) | **MWVM v2.3** | Native upgrade & migration: stable contract address, changelog, `migrate` entry point |
-| **draft9** | [draft9-v2.4.md](./draft9-v2.4.md) | **MWVM v2.4** *(current)* | KYA/DID + VC delegation: `did_validate`, `vc_verify`, `vp_present`, `check_delegation_scope`, `revoke_vc`, x402 micropayments |
+| **draft9** | [draft9-v2.4.md](./draft9-v2.4.md) | MWVM v2.4 | KYA/DID + VC delegation: `did_validate`, `vc_verify`, `vp_present`, `check_delegation_scope`, `revoke_vc`, x402 micropayments |
+| **draft10** | [draft10-v2.5.md](./draft10-v2.5.md) | MWVM v2.5 | Host API security review, permission model, Safe Native Infrastructure Wrappers (issue_token, bank_transfer, place_limit_order, etc.) |
+| **draft11** | [draft11-v2.6.md](./draft11-v2.6.md) | **MWVM v2.6** *(current)* | Bucket-as-Service (BaS) policy, agent-deployed structural products, exploit-aware countermeasures |
 
 ---
 
@@ -55,7 +57,7 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Need | Start Here |
 |------|------------|
-| Current production spec | [draft9-v2.4.md](./draft9-v2.4.md) |
+| Current production spec | [draft11-v2.6.md](./draft11-v2.6.md) |
 | Host API reference | [keyhost.md](./keyhost.md) |
 | Why object-centric + MVCC | [io.md](./io.md) |
 | Why no EVM-style upgrades | [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) |
@@ -83,6 +85,8 @@ flowchart TB
         d7[draft7 v2.2]
         d8[draft8 v2.3]
         d9[draft9 v2.4]
+        d10[draft10 v2.5]
+        d11[draft11 v2.6]
     end
 
     subgraph Decisions["Decisions"]
@@ -94,7 +98,7 @@ flowchart TB
     storage --> d2
     keyhost --> d5
     vm2 --> d5
-    d5 --> d6 --> d7 --> d8 --> d9
+    d5 --> d6 --> d7 --> d8 --> d9 --> d10 --> d11
     noevm --> d8
     noevm --> d9
     keyhost --> sdk
