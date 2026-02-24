@@ -67,6 +67,15 @@ Gasless deployment, refundable storage deposits, cost formulas.
 | [cost.md](./cost/cost.md) | **Deployment design** — MsgStoreCode, MsgInstantiate, MsgMigrate; 1 $MORPH / 100 KB deposit |
 | [cost-driver.md](./cost/cost-driver.md) | **Cost formula table** — Full formulas for StoreCode, Instantiate, Migrate, DeleteCode |
 
+### [Securities](./securities/)
+
+Security reviews, permission models, and safe-access patterns.
+
+| Document | Description |
+|----------|-------------|
+| [vm-security-review.md](./securities/vm-security-review.md) | Host API security review — risk levels, countermeasures, permission model |
+| [security-concern-agents.md](./securities/security-concern-agents.md) | Safe agent access — CLAMM via KYA/VC, native Msg, multisig |
+
 ### [MEV](./mev/)
 
 MEV analysis for WASM vs EVM.
@@ -100,3 +109,4 @@ MormTest — local WASM testing, agentic workflows, MCP.
 | Cost formulas | [cost-driver.md](./cost/cost-driver.md) |
 | Local testing | [test-framework.md](./test-framework/test-framework.md), [morm-test.md](./test-framework/morm-test.md) |
 | Agentic / MCP | [mcp-feature.md](./test-framework/mcp-feature.md) |
+| Security & permission model | [securities/README.md](./securities/README.md) |
