@@ -21,7 +21,7 @@ Product types: **Position-Backed** (perp portfolios), **Asset-Backed** (stable y
 
 | Document | Description |
 |----------|-------------|
-| [Design Decision Section](#design-decision-section) | **Ideas & relationships** — Core philosophy, security-by-design, recursive risk stack, evolution of ideas |
+| [Design Decision Section](#design-decision-section) | **Ideas & relationships** — Core philosophy, security-by-design, recursive risk stack, supporting docs, security from new business ideas |
 | [design.md](./design.md) | **BaS rule set** — Creation, listing, trading, settlement, exploit countermeasures; Step 9 amendable |
 | [business-model.md](./business-model.md) | **Strategic blueprint** — Agents as issuers, revenue streams, $MORM flywheel, DeFi comparison |
 | [security-concern.md](./security-concern.md) | **Security analysis** — Severity-ranked concerns, countermeasures, delegation-first policy |
@@ -123,6 +123,13 @@ flowchart TB
         I[index-fund-product.md<br/>ETF-like index buckets]
     end
 
+    subgraph Supporting
+        J[gov-params.md<br/>Constitutional params]
+        K[veMORM.md<br/>Lock mechanics, quotas]
+        L[index-fund-requirements.md<br/>Index constraints]
+        M[index-fund-incentive.md<br/>Index business model]
+    end
+
     A --> B
     B --> C
     A --> D
@@ -131,6 +138,10 @@ flowchart TB
     E --> G
     C --> H
     C --> I
+    C --> J
+    C --> K
+    I --> L
+    I --> M
 ```
 
 - **economic-view** → Why buckets as yield/carry primitives; why controlled recursion instead of banning it.
@@ -140,7 +151,56 @@ flowchart TB
 - **depth-limiter** + **skin-in-game-leverage** → Specific mechanisms for depth and $MORM lock.
 - **bucket-as-insurance** → Buyer protection and surplus handling.
 - **index-fund-product** → Extension to ETF-like collective buckets.
+- **gov-params** + **veMORM** → Constitutional and economic infrastructure for all BaS products.
+- **index-fund-requirements** + **index-fund-incentive** → Constraints and economics for the index fund extension.
 
 ### 7. Governance and Tunability
 
 All parameters (quotas, fees, insurance split, depth limits, skin-in-game %) are **constitutional** (Step 9 amendable). veMORM holders can adjust thresholds, throttle new Level-3/4 creations, or pause specific bucket families. This keeps the system adaptable without changing core design.
+
+### 8. Supporting Documents Not in the Core Flow
+
+Several documents support the main idea evolution but sit outside the primary flow. They address **operational**, **economic**, and **extension** concerns:
+
+| Document | Role | How It Relates |
+|----------|------|----------------|
+| [gov-params.md](./gov-params.md) | Constitutional parameters for BaS launch | Defines all tunable values (deposits, fees, quotas, safe mode). Enables governance to respond to new risks without code changes. |
+| [veMORM.md](./veMORM.md) | Vote-escrowed locking mechanics | Powers skin-in-the-game (veMORM balance = lock proof), governance voting, and quota boosts. Long-term alignment layer that reduces circulating supply. |
+| [index-fund-requirements.md](./index-fund-requirements.md) | Technical + governance checklist for index funds | Constrains index fund design: min child buckets, max weight per child, redemption delay. Prevents concentration and flash-redemption attacks. |
+| [index-fund-incentive.md](./index-fund-incentive.md) | Business model for index funds | Revenue streams, participant types, phased rollout. Ensures index funds are economically sustainable and recognizable as ETF-like products. |
+
+These documents are **dependencies** for safe rollout: gov-params and veMORM underpin the rule set; index-fund-* define how BaS extends to a new product category without weakening security.
+
+### 9. Security from New Business Ideas: Unintended Consequences
+
+Opening new business ideas (BaS, index funds, recursive buckets) introduces **new attack surfaces and unintended results**. The design addresses this in layers:
+
+#### New Capabilities → New Risks
+
+| New Capability | Potential Unintended Result | Mitigation |
+|----------------|-----------------------------|------------|
+| **Agent-issued buckets** | Spam, fraud, misrepresentation, rug pulls | Creation deposit, quotas, VC scoping, immutable health snapshots, insurance fund, slashing |
+| **Secondary P2P market** | Non-atomic sales, reentrancy, MEV | Atomic escrow, minimum listing duration, reputation gating |
+| **Recursive buckets** | Hidden leverage, cascade liquidations | Depth limiter (max 4), escalating skin-in-the-game, effective leverage cap, tree isolation |
+| **Index funds** | NAV manipulation, concentration risk, flash redemption | Min child buckets, max weight per child, redemption delay, multi-oracle NAV |
+| **veMORM / governance** | Governance capture, parameter gaming | Supermajority (66.67%), timelock, decay-based voting power |
+| **Permissionless issuance** | Regulatory exposure, bad-actor products | Optional KYC-gated verified issuers, on-chain transparency, insurance for victims |
+
+#### Design Principle: Fail-Safe by Default
+
+- **Safe Mode** (`bas_safe_mode_enabled`): Emergency pause for creation and sales. Governance can activate without code deploy.
+- **Constitutional parameters**: All new product types (e.g., index funds) get dedicated params (`index_fund_*`) so governance can tune or disable them.
+- **Insurance fund**: Covers proven misrepresentation; surplus used for buybacks. Limits blast radius of new product failures.
+- **First-loss $MORM buffer**: Recursive trees absorb losses in locked $MORM before user capital. New recursive products inherit this.
+
+#### When Adding New Business Ideas
+
+Before extending BaS (e.g., tranches, derivatives, cross-chain buckets):
+
+1. **Identify new attack surface** — What can go wrong that does not exist today?
+2. **Reuse existing controls** — VC scoping, atomicity, snapshots, quotas.
+3. **Add product-specific params** — Constitutional, Step 9 amendable.
+4. **Define insurance/compensation** — How does the insurance fund or slashing apply?
+5. **Document in security-concern style** — Severity-ranked concerns + countermeasures.
+
+This keeps new business ideas from introducing unintended systemic risk while preserving permissionless innovation.
