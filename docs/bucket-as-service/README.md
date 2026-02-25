@@ -21,7 +21,7 @@ Product types: **Position-Backed** (perp portfolios), **Asset-Backed** (stable y
 
 | Document | Description |
 |----------|-------------|
-| [Design Decision Section](#design-decision-section) | **Ideas & relationships** — Core philosophy, security-by-design, recursive risk stack, supporting docs, security from new business ideas |
+| [Design Decision Section](#design-decision-section) | **Ideas & relationships** — Core philosophy, security-by-design, recursive risk stack, supporting docs, security from new business ideas, governance fail-safe index |
 | [design.md](./design.md) | **BaS rule set** — Creation, listing, trading, settlement, exploit countermeasures; Step 9 amendable |
 | [business-model.md](./business-model.md) | **Strategic blueprint** — Agents as issuers, revenue streams, $MORM flywheel, DeFi comparison |
 | [security-concern.md](./security-concern.md) | **Security analysis** — Severity-ranked concerns, countermeasures, delegation-first policy |
@@ -204,3 +204,28 @@ Before extending BaS (e.g., tranches, derivatives, cross-chain buckets):
 5. **Document in security-concern style** — Severity-ranked concerns + countermeasures.
 
 This keeps new business ideas from introducing unintended systemic risk while preserving permissionless innovation.
+
+### 10. Governance Backing: Fail-Safe Index
+
+The fail-safe countermeasures above are backed by **constitutional amendments and governance proposals** in [../govnerment/](../govnerment/). This index maps each mechanism to its governance source:
+
+| Fail-Safe Countermeasure | Governance Backing | Document |
+|--------------------------|-------------------|----------|
+| **Safe Mode** (emergency pause) | `bas_safe_mode_enabled`, `bas_emergency_safe_mode_duration` | [MORP-GOV-001](../govnerment/MORP-GOV-001.md), [gov-params](./gov-params.md) |
+| **Constitutional parameters** (quotas, fees, deposits) | All `bas_*`, `index_fund_*` params; Step 9 amendable | [gov-params](./gov-params.md), [MORP-GOV-001](../govnerment/MORP-GOV-001.md) |
+| **Insurance fund** (victim compensation, buybacks) | `bas_insurance_fund_contribution`, `wasm_overlap_insurance_contribution` | [bucket-as-insurance](./bucket-as-insurance.md), [BA-OVERLAP-PENALTY-001](../govnerment/BA-OVERLAP-PENALTY-001.md) |
+| **VC scoping & quotas** (delegation, A2A) | Bucket-specific claims, CLAMM A2A claims, rate limits | [MORP-GOV-2026-02](../govnerment/MORP-GOV-2026-02.md), [MORP-GOV-2026-03](../govnerment/MORP-GOV-2026-03.md) |
+| **Anti-overlap penalties** (discourage native duplication) | `wasm_overlap_*` params; deposit multipliers, usage fees | [BA-OVERLAP-PENALTY-001](../govnerment/BA-OVERLAP-PENALTY-001.md) |
+| **Hybrid governance model** (native core, WASM policy) | Core = native; app-level = WASM with native ratification | [design](../govnerment/design.md), [hypbrid-governance](../govnerment/hypbrid-governance.md) |
+| **Supermajority & timelock** | ≥66.67% Yes; 7-day timelock for major changes | [govnerment/README](../govnerment/README.md), all MORP-GOV proposals |
+
+**Govnerment document index** (see [../govnerment/README.md](../govnerment/README.md)):
+
+| Document | Role |
+|----------|------|
+| [design.md](../govnerment/design.md) | Why hybrid (not pure WASM); core vs app-level governance |
+| [hypbrid-governance.md](../govnerment/hypbrid-governance.md) | Native vs WASM scope; safe integration via wrappers |
+| [MORP-GOV-001](../govnerment/MORP-GOV-001.md) | BaS launch; constitutional params; safe mode templates |
+| [MORP-GOV-2026-02](../govnerment/MORP-GOV-2026-02.md) | CLAMM A2A VC claims and quotas |
+| [MORP-GOV-2026-03](../govnerment/MORP-GOV-2026-03.md) | Bucket A2A VC claims and quotas |
+| [BA-OVERLAP-PENALTY-001](../govnerment/BA-OVERLAP-PENALTY-001.md) | Overlap penalties; deposit multipliers; insurance contribution |

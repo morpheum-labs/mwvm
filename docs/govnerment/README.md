@@ -45,3 +45,18 @@ This balances security, performance, decentralization, and agentic innovation wh
 | CLAMM agent delegation | [MORP-GOV-2026-02.md](./MORP-GOV-2026-02.md) |
 | Bucket agent delegation | [MORP-GOV-2026-03.md](./MORP-GOV-2026-03.md) |
 | Anti-overlap economics | [BA-OVERLAP-PENALTY-001.md](./BA-OVERLAP-PENALTY-001.md) |
+
+---
+
+## Fail-Safe Countermeasure Index
+
+These governance proposals back the **fail-safe countermeasures** described in [../bucket-as-service/README.md#10-governance-backing-fail-safe-index](../bucket-as-service/README.md#10-governance-backing-fail-safe-index):
+
+| Mechanism | Govnerment Backing |
+|-----------|-------------------|
+| Safe Mode (emergency pause) | MORP-GOV-001, gov-params |
+| Constitutional params (quotas, fees) | gov-params, MORP-GOV-001 |
+| Insurance fund | bucket-as-insurance, BA-OVERLAP-PENALTY-001 |
+| VC scoping & A2A quotas | MORP-GOV-2026-02, MORP-GOV-2026-03 |
+| Anti-overlap penalties | BA-OVERLAP-PENALTY-001 |
+| Hybrid governance | design, hypbrid-governance |
