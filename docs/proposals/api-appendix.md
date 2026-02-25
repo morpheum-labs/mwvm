@@ -6,7 +6,7 @@ Index of all Morpheum WASM VM (MWVM) design proposals, with links to supporting 
 
 ## API Summary (All Proposals)
 
-Consolidated list of all Host API functions and transaction types across MWVM proposals. Source: [keyhost.md](./keyhost.md), [draft5-v2.0.md](./draft5-v2.0.md) through [draft9-v2.4.md](./draft9-v2.4.md).
+Consolidated list of all Host API functions and transaction types across MWVM proposals. Source: [keyhost.md](./keyhost.md), [draft5-v2.0.md](./draft5-v2.0.md) through [draft11-v2.6.md](./draft11-v2.6.md).
 
 ### Host API by Category
 
@@ -62,6 +62,16 @@ Consolidated list of all Host API functions and transaction types across MWVM pr
 | | `revoke_vc` | `(vc_id: Hash)` | draft9 | Revoke issued VC (issuer only) |
 | | `emit_delegation_log` | `(action: String, vc_id: Hash, notes: Vec<u8>)` | draft9 | Record delegation event |
 | **Governance** | `read_constitution_param` | `(key)` | draft5 | Live param from Step 9 |
+| **Safe Native Wrappers (v2.5)** | `issue_token` | `(name, symbol, total_supply, mint_to)` | draft10 | VC-gated token issuance (1/epoch per DID) |
+| | `bank_transfer` | `(to: ID, amount: u128, token: Hash)` | draft10 | VC-gated bank/spot transfer (20/sec, $100k daily cap) |
+| | `bucket_to_bucket_transfer` | `(from_bucket, to_bucket, amount)` | draft10 | VC-gated bucket transfer (same collateralAssetId) |
+| | `bank_to_bucket_transfer` | `(bucket_id, amount)` | draft10 | VC-gated fund bucket from bank |
+| | `bucket_to_bank_transfer` | `(bucket_id, amount)` | draft10 | VC-gated withdraw from bucket |
+| | `place_limit_order` | `(market, side, price, size, fill_type)` | draft10 | VC-gated limit order (50/sec, notional cap) |
+| | `cancel_limit_order` | `(order_id: Hash)` or batch | draft10 | VC-gated order cancellation (100 cancels/sec) |
+| | `multi_send` | `(recipients: Vec<(to, amount, token)>)` | draft10 | VC-gated multi-recipient transfer (max 50/call) |
+| **Bucket-as-Service (v2.6)** | `deploy_bucket_product` | `(type, params...)` + VC `can_deploy_bucket` | draft11 | Agent-deploy position/asset/mix-backed bucket products |
+| | `buy_bucket` | `(product_id: Hash)` + atomic escrow | draft11 | Purchase full bucket product (BaS secondary market) |
 
 ### Transaction Types (Msg)
 
@@ -74,7 +84,7 @@ Consolidated list of all Host API functions and transaction types across MWVM pr
 
 ### Native-Only (Not Exposed via Host API)
 
-Per [v2.4-clarifications.md](./v2.4-clarifications.md): multisig wallet FSM, full CLAMM/ReClamm operations, bucket/perp core, direct staking core logic. Contracts access these only via KYA delegation.
+Per [draft10-v2.5.md](./draft10-v2.5.md) and [draft11-v2.6.md](./draft11-v2.6.md): multisig wallet FSM, full CLAMM/ReClamm operations, bucket/perp core, direct staking core logic. Contracts access these only via KYA delegation and Safe Native Infrastructure Wrappers (v2.5+) or Bucket-as-Service wrappers (v2.6).
 
 ### Function Count by Version
 
@@ -85,6 +95,8 @@ Per [v2.4-clarifications.md](./v2.4-clarifications.md): multisig wallet FSM, ful
 | v2.2 | 37+ | +2 security (set_safe_mode, get_call_depth) |
 | v2.3 | 39+ | +4 migration (migrate, get_contract_version, require_version, emit_migration_log) |
 | v2.4 | 43+ | +8 KYA (did_validate, vc_verify, vp_present, check_delegation_scope, get_agent_reputation, x402_verify_micropayment, revoke_vc, emit_delegation_log) |
+| v2.5 | 51+ | +8 Safe Native Wrappers (issue_token, bank_transfer, bucket transfers, place/cancel_limit_order, multi_send) |
+| v2.6 | 53+ | +2 Bucket-as-Service (deploy_bucket_product, buy_bucket) |
 
 ---
 
@@ -100,7 +112,9 @@ Per [v2.4-clarifications.md](./v2.4-clarifications.md): multisig wallet FSM, ful
 | **draft6** | [draft6-v2.1.md](./draft6-v2.1.md) | **MWVM v2.1** | Agentic extensions: `agent_publish`, `ai_infer`, swarm parallelism |
 | **draft7** | [draft7-v2.2.md](./draft7-v2.2.md) | **MWVM v2.2** | Permissionless safety: `set_safe_mode`, `get_call_depth`, reentrancy guards |
 | **draft8** | [draft8-v2.3.md](./draft8-v2.3.md) | **MWVM v2.3** | Native upgrade & migration: stable contract address, changelog, `migrate` entry point |
-| **draft9** | [draft9-v2.4.md](./draft9-v2.4.md) | **MWVM v2.4** *(current)* | KYA/DID + VC delegation: `did_validate`, `vc_verify`, `vp_present`, `check_delegation_scope`, `revoke_vc`, x402 micropayments |
+| **draft9** | [draft9-v2.4.md](./draft9-v2.4.md) | **MWVM v2.4** | KYA/DID + VC delegation: `did_validate`, `vc_verify`, `vp_present`, `check_delegation_scope`, `revoke_vc`, x402 micropayments |
+| **draft10** | [draft10-v2.5.md](./draft10-v2.5.md) | **MWVM v2.5** | Safe Native Infrastructure Wrappers: `issue_token`, `bank_transfer`, bucket transfers, `place_limit_order`, `cancel_limit_order`, `multi_send`; Host API security review; constitutional resource quotas |
+| **draft11** | [draft11-v2.6.md](./draft11-v2.6.md) | **MWVM v2.6** *(current)* | Bucket-as-Service (BaS): `deploy_bucket_product`, `buy_bucket`; agent-issued structural products; exploit-aware countermeasures; $MORM value appreciation mechanics |
 
 ---
 
@@ -112,7 +126,7 @@ These documents define the core architecture that all MWVM versions build on.
 |----------|---------|----------|
 | [io.md](./io.md) | Load/write/execute, race prevention, MVCC + Block-STM | Explains why WASM has no persistent storage; object-centric design; DAG causal order |
 | [storage.md](./storage.md) | WASM storage model | Linear memory vs host-provided KV; CosmWasm, NEAR, Substrate comparison |
-| [keyhost.md](./keyhost.md) | Host API (43+ functions) | Object management, DAG context, idempotency, oracle, staking, crosschain, KYA/delegation |
+| [keyhost.md](./keyhost.md) | Host API (53+ functions) | Object management, DAG context, idempotency, oracle, staking, crosschain, KYA/delegation, Safe Native Wrappers (v2.5), Bucket-as-Service (v2.6) |
 | [vm-2.md](./vm-2.md) | v2.0 compatibility matrix | Maps io, storage, keyhost, cost to v2.0 implementation |
 | [comparison.md](./comparison.md) | VM comparison | ZK Cairo vs Move vs WASM — design philosophy, performance, security |
 
@@ -122,8 +136,8 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Document | Decision | Rationale |
 |----------|----------|-----------|
-| [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) | **No OpenZeppelin-style upgrade complexity** | Object-centric model avoids storage slots, proxies, delegatecall; v2.3 native migration; v2.4 KYA/DID delegation |
-| [sdk-opensource.md](./sdk-opensource.md) | **morpheum_std SDK design** | High-level wrappers over 43+ Host APIs; Rust primary, Go secondary; Mormtest integration |
+| [no-upgrades-like-evm.md](./no-upgrades-like-evm.md) | **No OpenZeppelin-style upgrade complexity** | Object-centric model avoids storage slots, proxies, delegatecall; v2.3 native migration; v2.4 KYA/DID delegation; v2.5 Safe Native Wrappers; v2.6 Bucket-as-Service |
+| [sdk-opensource.md](./sdk-opensource.md) | **morpheum_std SDK design** | High-level wrappers over 53+ Host APIs; Rust primary, Go secondary; Mormtest integration |
 
 ---
 
@@ -139,7 +153,7 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Need | Start Here |
 |------|------------|
-| Current production spec | [draft9-v2.4.md](./draft9-v2.4.md) |
+| Current production spec | [draft11-v2.6.md](./draft11-v2.6.md) |
 | **All APIs (consolidated)** | [API Summary](#api-summary-all-proposals) above |
 | Host API reference (detailed) | [keyhost.md](./keyhost.md) |
 | Why object-centric + MVCC | [io.md](./io.md) |
@@ -168,6 +182,8 @@ flowchart TB
         d7[draft7 v2.2]
         d8[draft8 v2.3]
         d9[draft9 v2.4]
+        d10[draft10 v2.5]
+        d11[draft11 v2.6]
     end
 
     subgraph Decisions["Decisions"]
@@ -179,8 +195,10 @@ flowchart TB
     storage --> d2
     keyhost --> d5
     vm2 --> d5
-    d5 --> d6 --> d7 --> d8 --> d9
+    d5 --> d6 --> d7 --> d8 --> d9 --> d10 --> d11
     noevm --> d8
     noevm --> d9
+    noevm --> d10
+    noevm --> d11
     keyhost --> sdk
 ```
