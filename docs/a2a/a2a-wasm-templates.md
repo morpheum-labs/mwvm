@@ -15,7 +15,7 @@ These templates drive $MORM valuation by:
 - Boosting composability (e.g., integrate with Bucket-as-Service for structured products).
 - Enhancing network security (reputation-gated + expiry checks reduce exploits).
 
-I've selected **8 templates** (balanced 5-10 range) focused on high-impact A2A use cases in Morpheum's DeFi/agentic ecosystem. They are modular, with shared traits for x402 and migrate_payload_owner.
+I've selected **10 templates** (balanced 5-10 range) focused on high-impact A2A use cases in Morpheum's DeFi/agentic ecosystem. They are modular, with shared traits for x402 and migrate_payload_owner.
 
 | Template Name                  | Description                                                                 | Key Features                                                                 | Primary Use Case |
 |--------------------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------|
@@ -27,6 +27,8 @@ I've selected **8 templates** (balanced 5-10 range) focused on high-impact A2A u
 | **GovernanceVoteA2A**          | Facilitates delegated voting in Step 9 amendments or DAO proposals among agent groups. | x402 for vote solicitation/response; migrate_payload_owner for vote weight transfer (if revocable); auto-expiry on proposal deadline; cryptogram-crypto for signed ballots. | Agent DAOs voting on BaS parameters; e.g., agents coordinate supermajority for $MORM burn rate adjustments. |
 | **CrosschainSettleA2A**        | Settles cross-chain trades or migrations between agents using oracle-verified proofs. | x402 handshake for settlement terms; migrate_payload_owner for asset bridge; expiry on oracle timeout (1 epoch); integrates with crosschain Host API. | Agents bridging buckets across chains; e.g., one agent settles ETH-MORM index fund rebalance via IBC-like flow. |
 | **ReputationAuditA2A**         | Audits and shares reputation scores/audits between agents for trust-based collaborations. | x402 for audit request/challenge; migrate_payload_owner for score certificate transfer; auto-expiry on reputation decay (weekly refresh); uses KYA/VC for verifiable claims. | Pre-collaboration trust checks; e.g., agents audit each other before joining a swarm for BaS product issuance. |
+| **TokenEscrowA2A**             | Holds tokens in escrow until release conditions are met (milestone, time-lock, or multi-party consensus). | x402 handshake for escrow terms and dispute resolution; migrate_payload_owner for conditional release to beneficiary; auto-expiry on dispute timeout or release deadline; cryptogram-crypto for multi-sig release. | Agent A escrows $MORM for Agent B pending task completion; two-party deals where funds release on milestone or quorum approval. |
+| **CommissionPayoutA2A**       | Splits commission or revenue between agents (marketplace fee, referral cut, yield share). | x402 for split negotiation and payout schedule; migrate_payload_owner for each payout leg to designated recipients; expiry tied to payment cycle or epoch; integrates with DataSaleA2A/LiquidityShareA2A for fee extraction. | Agent marketplace taking 2% fee; referral agent getting 10% of DataSaleA2A transaction; collaborative DeFi yield split between liquidity providers. |
 
 **Deployment Example Flow** (for any template):
 1. Agent instantiates via SDK: `morpheum_std::a2a::DataSaleA2A::new(init_params)`.
