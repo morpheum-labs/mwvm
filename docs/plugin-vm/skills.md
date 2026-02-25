@@ -17,6 +17,57 @@ Train every engineer and product owner on this checklist — it becomes our stan
 
 Apply this skillset quarterly during architecture reviews — it will save millions in dev/audit costs and accelerate $MORM ecosystem growth.
 
+### MWVM Extensibility Pattern Selector (6-Step Decision Framework)
+
+A practical, repeatable **decision skillset** for the Morpheum team to determine — module by module — whether a given extensibility need should use the **Hook Pattern** (surgical, point-in-time interception) or the **Pluggable/Microkernel Pattern** (full replacement or thick layer swap).
+
+This skillset is designed for architecture reviews, product planning sessions, or governance proposal triage. It helps maximize **speed-to-market for marketing/business changes**, minimize audit/dev cost, preserve core stability, and keep the treasury burn low — all of which compound into stronger **$MORM valuation** through higher iteration velocity, better capital efficiency, and superior user/TVL capture versus slower-moving DEXes/L1s/L2s.
+
+Use this checklist in order. Stop at the first "strong yes" and assign the pattern. If answers are mixed, default to **Hook** unless ≥4 points favor Pluggable.
+
+| Step | Question | Hook Pattern favored when … | Pluggable/Microkernel favored when … | Weight / Tie-breaker |
+|------|----------|----------------------------|--------------------------------------|----------------------|
+| 1 | **Change target size & scope** | Small, focused modification (single calculation, single decision, single side-effect) | Large, cross-cutting, or stateful logic (multiple steps, UI flows, multi-phase workflows, new data models) | Highest weight – first filter |
+| 2 | **Execution timing & granularity** | Logic must run at very precise, pre-defined moments inside core flow (before/after swap, before list, after settlement, validate action) | Logic replaces or owns an entire vertical/layer (campaign engine, user journey, full reward program, listing ruleset) | Very high – core differentiator |
+| 3 | **Frequency & ownership** | Marketing/BD needs to change it weekly–monthly (promos, A/B tests, seasonal multipliers, flash discounts) | Business development wants to own & evolve a whole experience over quarters (new gamification system, loyalty program v2, compliance suite) | High – velocity driver |
+| 4 | **State & data ownership** | Almost stateless or only reads/writes small, well-defined outputs (discount %, reward amount, approve/deny flag) | Needs to maintain its own persistent state, complex config, user progress, historical data, or multiple interacting rules | High – safety & complexity signal |
+| 5 | **Audit & risk surface** | Can be audited in isolation (50–300 LOC, single concern) with low blast radius | Larger surface acceptable because change is scoped to one swappable module (and core kernel stays untouched) | Medium – cost driver |
+| 6 | **Performance & gas criticality** | Must be extremely lightweight (runs on hot path many times per block) | Can afford slightly higher overhead (runs once per session or off hot path) | Tie-breaker when steps 1–5 are close |
+
+**Quick scoring rule of thumb** (used in team discussions):
+- ≥4 "Hook" answers → **Hook Pattern**
+- ≥4 "Pluggable" answers → **Pluggable/Microkernel**
+- 3–3 split → prefer **Hook** (cheaper, faster, safer default) unless step 1 or 4 strongly favors Pluggable
+
+### Concrete Morpheum Marketplace Examples (2026 Context)
+
+| Requirement / Module | Step 1 (size) | Step 2 (timing) | Step 3 (freq) | Step 4 (state) | Step 5 (audit) | Step 6 (gas) | Recommended Pattern | Rationale & $MORM Benefit |
+|----------------------|---------------|-----------------|---------------|----------------|----------------|--------------|---------------------|---------------------------|
+| Dynamic fee discount during promo week | Small | Precise (before fee calc) | Very high | Almost none | Very low | Critical | **Hook** | Launch in 2–4 days, ~$8–15k total cost → capture flash TVL spikes → volume & $MORM utility ↑ |
+| Referral bonus logic (15% of referee fees) | Small–medium | Precise (after trade) | High | Minimal | Low | High | **Hook** | Fast A/B testing of rates → higher user acquisition at low burn |
+| Full "Summer Fest" campaign engine (eligibility, timers, variants, badges) | Large | Full lifecycle | Extremely high | Yes (progress, claims) | Medium | Medium | **Pluggable** | BD owns seasonal rebrands → 5–10× more campaigns/year → exponential TVL growth |
+| Loyalty tier & multiplier program v2 | Medium–large | Full user journey | High | Yes (history, tiers) | Medium | Medium | **Pluggable** | Replace entire system without touching core → retain power users → staking lock-up ↑ |
+| Geo-fencing / KYC-lite compliance check | Small | Precise (validate action) | High (reg change) | Minimal | Low | Critical | **Hook** | React to new regulation in <1 week → avoid blacklisting risk → trust & TVL preservation |
+| New revenue-share model with partners | Medium | After settlement | Medium–high | Minimal–medium | Medium | Medium | **Hook** (preferred) or Pluggable if very complex | Quick partnership activation → new revenue streams → treasury buybacks ↑ |
+| Personalized offer & recommendation engine | Large | Full session | High | Yes (user profile) | Higher | Lower | **Pluggable** | Marketing owns UX innovation → higher conversion & session depth → volume ↑ |
+
+### Training & Adoption Plan for the Team
+
+To make this skillset muscle memory:
+
+1. **Template card / Notion page** — one-page printable with the 6 questions + scoring rule
+2. **Architecture review ritual** — every new feature request or governance idea starts with "Which pattern?" using the table
+3. **Decision log** — maintain a lightweight table of past decisions (module → pattern → actual cost/time → outcome) to refine intuition
+4. **Prototype templates** — maintain 3–4 boilerplate Wasm hook examples and 2–3 pluggable module skeletons so jump-start is <1 day
+5. **Governance category tags** — add "Hook Upgrade" (fast-track 24–48 h vote) vs "Pluggable Module Swap" (standard 3–7 day vote)
+
+**Bottom-line impact on $MORM**  
+Teams that consistently choose the **correct** pattern ship 3–6× faster at 60–80% lower cost per change.  
+That difference turns Morpheum from "another DEX" into **the most responsive, marketing-first marketplace** in DeFi — capturing seasonal liquidity waves, regulatory windows, and partnership opportunities that rigid competitors miss.  
+Every correctly pattern-matched rollout = higher TVL velocity, stronger network effects, lower treasury bleed → direct, compounding appreciation pressure on **$MORM**.
+
+*Optional follow-ups: one-page printable decision canvas (with scoring calculator pseudocode), example governance proposal templates for each pattern, refined cost-model spreadsheet showing 12-month projection for 10–15 changes.*
+
 ### Marketplace Infrastructure Breakdown & Pattern Recommendations
 Here are concrete parts of a typical decentralized marketplace (DEX + NFT + services trading) that should be extracted. I prioritized modules that marketing/BD teams touch most heavily.
 
