@@ -100,18 +100,19 @@ Agent-to-Agent flows, WASM templates, and ecosystem strategy.
 | [critical-features.md](./a2a/critical-features.md) | Must-build features before ecosystem launch |
 | [fetchai.md](./a2a/fetchai.md), [against-virtual.md](./a2a/against-virtual.md) | Market positioning and adoption strategy |
 
-### [Governance](./govnerment/)
+### [Governance](./government/)
 
 Hybrid native/WASM governance model, Step 9 amendments, and constitutional proposals.
 
 | Document | Description |
 |----------|-------------|
-| [README.md](./govnerment/README.md) | **Governance index** — Design rationale, MORP-GOV proposals, overlap penalties |
-| [design.md](./govnerment/design.md) | Why hybrid (not pure WASM); security model; $MORM value drivers |
-| [hypbrid-governance.md](./govnerment/hypbrid-governance.md) | Native vs WASM scope; safe integration via KYA/VC |
-| [MORP-GOV-001.md](./govnerment/MORP-GOV-001.md) | BaS launch — constitutional parameters, proposal templates |
-| [MORP-GOV-2026-02.md](./govnerment/MORP-GOV-2026-02.md), [MORP-GOV-2026-03.md](./govnerment/MORP-GOV-2026-03.md) | CLAMM/Bucket A2A VC claims and quotas |
-| [BA-OVERLAP-PENALTY-001.md](./govnerment/BA-OVERLAP-PENALTY-001.md) | Economic penalties for overlapping WASM features |
+| [README.md](./government/README.md) | **Governance index** — Design rationale, MORP-GOV proposals, overlap penalties |
+| [pretext/prelogue.md](./government/pretext/prelogue.md) | **Idea developments** — Web 4.0, agent taxonomy, autonomy levels (start here for conceptual context) |
+| [design.md](./government/design.md) | Why hybrid (not pure WASM); security model; $MORM value drivers |
+| [hypbrid-governance.md](./government/hypbrid-governance.md) | Native vs WASM scope; safe integration via KYA/VC |
+| [MORP-GOV-001.md](./government/MORP-GOV-001.md) | BaS launch — constitutional parameters, proposal templates |
+| [MORP-GOV-2026-02.md](./government/MORP-GOV-2026-02.md), [MORP-GOV-2026-03.md](./government/MORP-GOV-2026-03.md) | CLAMM/Bucket A2A VC claims and quotas |
+| [BA-OVERLAP-PENALTY-001.md](./government/BA-OVERLAP-PENALTY-001.md) | Economic penalties for overlapping WASM features |
 
 ### [MEV](./mev/)
 
@@ -148,3 +149,4 @@ MormTest — local WASM testing, agentic workflows, MCP.
 | Agentic / MCP | [mcp-feature.md](./test-framework/mcp-feature.md) |
 | Security & permission model | [securities/README.md](./securities/README.md) |
 | Bucket-as-Service (BaS) | [bucket-as-service/README.md](./bucket-as-service/README.md) |
+| Idea developments (Web 4.0, agents) | [government/pretext/prelogue.md](./government/pretext/prelogue.md) |

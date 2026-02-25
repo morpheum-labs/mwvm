@@ -15,6 +15,25 @@ This balances security, performance, decentralization, and agentic innovation wh
 
 ---
 
+## Idea Developments (Pretext)
+
+Conceptual foundations for Web 4.0, autonomous agents, and Level 5 society — read [prelogue.md](./pretext/prelogue.md) first.
+
+| Document | Description |
+|----------|-------------|
+| [prelogue.md](./pretext/prelogue.md) | **Web 4.0 + agent taxonomy** — Web evolution (1.0→4.0), autonomous agent types, autonomy levels (1–5) |
+| [2026-level.md](./pretext/2026-level.md) | Agentic L1 networks — AgentLayer, A2A landscape, development level (2026) |
+| [level-5-society.md](./pretext/level-5-society.md) | Level 5 + decentralized blockchain — AI jurisdiction, ethics, symbiotic civilization |
+| [agent-body-law.md](./pretext/agent-body-law.md) | How agents "abide" by laws — legal personality, autonomy vs outlaw landscape |
+| [hybrid-soiety.md](./pretext/hybrid-soiety.md) | Hybrid human–AI society |
+| [government-comparison.md](./pretext/government-comparison.md) | AI government frameworks comparison |
+| [ethos-framework.md](./pretext/ethos-framework.md) | ETHOS — federated civilization, constitutional veto |
+| [ethos-arch.md](./pretext/ethos-arch.md) | ETHOS architecture |
+| [cai-framework.md](./pretext/cai-framework.md) | CAI framework |
+| [cai-arch.md](./pretext/cai-arch.md) | CAI architecture |
+
+---
+
 ## Document Index
 
 ### Design & Architecture
@@ -52,7 +71,7 @@ This balances security, performance, decentralization, and agentic innovation wh
 
 These governance proposals back the **fail-safe countermeasures** described in [../bucket-as-service/README.md#10-governance-backing-fail-safe-index](../bucket-as-service/README.md#10-governance-backing-fail-safe-index):
 
-| Mechanism | Govnerment Backing |
+| Mechanism | Governance Backing |
 |-----------|-------------------|
 | Safe Mode (emergency pause) | MORP-GOV-001, gov-params |
 | Constitutional params (quotas, fees) | gov-params, MORP-GOV-001 |

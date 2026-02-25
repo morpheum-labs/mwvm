@@ -25,6 +25,8 @@ All design, cost, MEV, and test-framework documentation lives in [`docs/`](./doc
 
 **Start here**: [docs/README.md](./docs/README.md) — full index and quick reference.
 
+**Idea developments**: [docs/government/pretext/prelogue.md](./docs/government/pretext/prelogue.md) — Web 4.0, agent taxonomy, Level 5 society (conceptual context).
+
 ## Compatibility
 
 - **Mormcore** — 9-step DAG consensus (Blocklace, Waves, Frosty, Finality, Recovery, Amendment)
