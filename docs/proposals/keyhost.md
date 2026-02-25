@@ -1,6 +1,6 @@
 **Morpheum WASM VM Host API – Expanded & Comprehensive**  
-**Version**: 1.1 (February 2026)  
-**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery (bounded rollback), Constitutional Amendment, and all advanced requirements (treasury staking/restaking, crosschain settlements, oracle integration, agentic ops).
+**Version**: 1.2 (February 2026)  
+**Compatible with**: Morpheum 2.0 9-Step DAG Consensus (Mormcore), Object-Centric MVCC + Block-STM Scheduler, Flash Path, Frosty Epochs, Step-8 Recovery (bounded rollback), Constitutional Amendment, KYA/DID Delegation, Safe Native Infrastructure Wrappers (v2.5+), Bucket-as-Service (v2.6), and all advanced requirements (treasury staking/restaking, crosschain settlements, oracle integration, agentic ops).
 
 All functions are **WASM host imports** (sandboxed, strictly capability-checked, gas-metered, deterministic).  
 WASM modules see **only transient linear memory** — all persistent state, ordering, parallelism, and security are handled exclusively by the Mormcore host runtime.  
@@ -77,21 +77,49 @@ Functions are grouped by category. Each entry includes:
 | `enable_tee_mode` | `enable_tee_mode()` | None | Unit | "Run this tx inside a hardware enclave." | Optional per-shard; attestation on genesis (Step-9). | TEE attestation required. | Overhead (10-20%) | Confidential agent logic |
 | `fhe_encrypt` / `fhe_decrypt` / `fhe_compute` | Various (e.g. `fhe_add(cipher1, cipher2) -> cipher`) | Ciphertexts | New ciphertext | "Compute on encrypted data." | Host provides FHE ops (TFHE/OpenFHE bindings). | Encrypted objects only. | Very high | Private finance, agent privacy |
 
+#### 9. KYA / Delegation Group (v2.4 – Scoped Agent Authorization)
+| Function | Signature | Parameters | Returns | Layman Description | Formal Role & Consensus Tie-in | Host Enforcement / Security | Gas Model | Primary Use Cases |
+|----------|-----------|------------|---------|--------------------|--------------------------------|-----------------------------|-----------|-------------------|
+| `did_validate` | `did_validate(did: String) -> Result<DidInfo>` | `did` | DidInfo | "Parse and validate a DID." | Uses did-rs parser (O(1), syntactic). | Prevents malformed DIDs. | Fixed low | Agent identity validation |
+| `vc_verify` | `vc_verify(vc: Vec<u8>) -> Result<VerifiedClaims>` | `vc` | VerifiedClaims | "Verify owner-signed Verifiable Credential." | Cryptographic check + claim extraction. | Scoped delegation proof. | Fixed | Agent delegation proof |
+| `vp_present` | `vp_present(vp: Vec<u8>) -> Result<VerifiedClaims>` | `vp` | VerifiedClaims | "Present VP containing one or more VCs." | Validates agent signature + VC chain. | Full delegation proof. | Fixed | Agent authorization |
+| `check_delegation_scope` | `check_delegation_scope(claims, tx_context) -> bool` | claims, tx_context | bool | "Does this tx match the VC limits (amount, assets, expiry, slippage)?" | Enforced before any execute/migrate. | Fine-grained policy. | Fixed | Pre-execution scope check |
+| `get_agent_reputation` | `get_agent_reputation(did: String) -> u32` | `did` | u32 | "Get current KYA reputation score." | Cached lookup (hot moka cache). | Reputation-aware routing. | Fixed low | Agent routing, gating |
+| `x402_verify_micropayment` | `x402_verify_micropayment(header: Vec<u8>) -> bool` | `header` | bool | "Verify x402 payment proof in HTTP-style header." | Instant stablecoin micropayment for agent calls. | Account-less payments. | Fixed | Agent micropayments |
+| `revoke_vc` | `revoke_vc(vc_id: Hash)` | `vc_id` | Unit | "Revoke a previously issued VC (issuer only)." | Updates revocation list (immutable log). | Issuer-only; instant revocation. | Fixed | Delegation revocation |
+| `emit_delegation_log` | `emit_delegation_log(action: String, vc_id: Hash, notes: Vec<u8>)` | action, vc_id, notes | Unit | "Record immutable delegation event." | Emits DelegationEvent + appends to changelog. | Full audit trail. | Fixed | Audit, compliance |
+
+#### 10. Safe Native Infrastructure Wrappers (v2.5+ – VC-Gated Access to Native Features)
+| Function | Signature | Parameters | Returns | Layman Description | Formal Role & Consensus Tie-in | Host Enforcement / Security | Gas Model | Primary Use Cases |
+|----------|-----------|------------|---------|--------------------|--------------------------------|-----------------------------|-----------|-------------------|
+| `issue_token` | `(name, symbol, total_supply, mint_to)` | name, symbol, supply, mint_to | Receipt | "Issue new token (safe, scoped)." | VC claim `can_issue_token` required; 1 token/epoch per DID. | Type whitelist, supply cap. | Fixed + supply | Agent token issuance |
+| `bank_transfer` | `(to: ID, amount: u128, token: Hash)` | to, amount, token | Unit | "Transfer from bank/spot." | VC claim `can_transfer` required; 20/sec, $100k daily cap. | Recipient whitelist, value cap. | Fixed | Agent transfers |
+| `bucket_to_bucket_transfer` | `(from_bucket, to_bucket, amount)` | from, to, amount | Unit | "Transfer between buckets (same collateralAssetId)." | VC claim `can_transfer_bucket` required. | Type match enforced. | Fixed | Bucket rebalancing |
+| `bank_to_bucket_transfer` | `(bucket_id, amount)` | bucket_id, amount | Unit | "Fund bucket from bank/spot." | VC claim `can_fund_bucket` required. | Bucket ownership + IM check. | Fixed | Bucket funding |
+| `bucket_to_bank_transfer` | `(bucket_id, amount)` | bucket_id, amount | Unit | "Withdraw from bucket to bank/spot." | VC claim `can_withdraw_from_bucket` required. | Cannot drop below IM. | Fixed | Bucket withdrawals |
+| `place_limit_order` | `(market, side, price, size, fill_type)` | market, side, price, size, fill_type | Order ID | "Place limit order (safe)." | VC claim `can_place_order` required; 50 orders/sec, notional cap. | CLOB backpressure reject. | Fixed | Agent order placement |
+| `cancel_limit_order` | `(order_id: Hash)` or batch | order_id(s) | Unit | "Cancel own order(s)." | VC claim `can_cancel_order` required; 100 cancels/sec. | Only own orders. | Fixed | Agent order cancellation |
+| `multi_send` | `(recipients: Vec<(to, amount, token)>)` | recipients | Unit | "Safe multi-recipient transfer." | VC claim `can_multi_send` required; max 50 recipients/call. | Gas proportional to recipients. | Per-recipient | Batch payouts |
+
+**Note**: All Safe Wrappers call `check_delegation_scope` + `vc_verify` automatically; emit immutable action/delegation logs; fail closed on quota exceed or VC mismatch.
+
 ### Summary & Key Properties
-- **Total functions**: 28+ (extensible via constitutional amendment — new host functions added as config objects).
+- **Total functions**: 43+ (extensible via constitutional amendment — new host functions added as config objects).
 - **All calls are deterministic** — identical result on every node.
 - **Parallelism maximised** — Block-STM schedules non-conflicting objects in parallel (Flash path = zero waves).
 - **Rollback safety** — Step-8 bounded rollback only reverts object versions ≤2Δ* (100 ms).
 - **Agentic-friendly** — idempotency + multi-call batches + verifiable randomness + oracle hooks.
 - **Upgradable** — Step-9 constitutional tx can add/remove host functions or change gas tables without fork.
 - **Zero changes to 9-step consensus** — WASM is simply another Msg handler in the router (post-finality).
+- **Agentic-first** — KYA/VC delegation (v2.4) + Safe Native Infrastructure Wrappers (v2.5+) enable scoped, revocable agent authorization without exposing raw native primitives.
 
-This expanded Host API is **production-grade, maximally secure, and perfectly aligned** with every requirement in the Morpheum 2.0 documents (object-centric MVCC, nonce/idempotency, race prevention, DAG sequencing, treasury/restaking, crosschain, oracles, agentic ops, ZK/TEE/FHE).
+This expanded Host API is **production-grade, maximally secure, and perfectly aligned** with every requirement in the Morpheum 2.0 documents (object-centric MVCC, nonce/idempotency, race prevention, DAG sequencing, treasury/restaking, crosschain, oracles, agentic ops, ZK/TEE/FHE, KYA delegation, Safe Wrappers).
 
 If you want:
 - Rust/WAT example signatures for any function
 - Full capability model spec
 - Gas cost formulas or example contract flow
 - Integration diagram with Block-STM scheduler
+- KYA/VC delegation flow or Safe Wrapper usage examples
 
 …just say the word and I’ll deliver the next document instantly. This is the complete, ready-to-implement Host API for your DAG + WASM system.
