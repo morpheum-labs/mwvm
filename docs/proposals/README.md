@@ -28,6 +28,7 @@ These documents define the core architecture that all MWVM versions build on.
 
 | Document | Purpose | Links To |
 |----------|---------|----------|
+| [archeciture.md](./archeciture.md) | **VM Architecture (Draft 1)** — Conceptual blueprint, component stack, design principles | High-level overview; entry point for architects; links to io, storage, keyhost |
 | [io.md](./io.md) | Load/write/execute, race prevention, MVCC + Block-STM | Explains why WASM has no persistent storage; object-centric design; DAG causal order |
 | [storage.md](./storage.md) | WASM storage model | Linear memory vs host-provided KV; CosmWasm, NEAR, Substrate comparison |
 | [keyhost.md](./keyhost.md) | Host API (43+ functions) | Object management, DAG context, idempotency, oracle, staking, crosschain, KYA/delegation |
@@ -71,6 +72,7 @@ These documents define the core architecture that all MWVM versions build on.
 ```mermaid
 flowchart TB
     subgraph Foundational["Foundational"]
+        arch[archeciture.md]
         io[io.md]
         storage[storage.md]
         keyhost[keyhost.md]
@@ -94,6 +96,9 @@ flowchart TB
         sdk[sdk-opensource]
     end
 
+    arch --> io
+    arch --> storage
+    arch --> keyhost
     io --> d2
     storage --> d2
     keyhost --> d5

@@ -55,6 +55,7 @@ Design proposals, version progression (draft1–draft11), and foundational archi
 | [draft9-v2.4.md](./proposals/draft9-v2.4.md) | MWVM v2.4 — KYA/DID + VC delegation, 43+ Host API functions |
 | [draft8-v2.3.md](./proposals/draft8-v2.3.md) | MWVM v2.3 — Native upgrade & migration, stable contract address |
 | [keyhost.md](./proposals/keyhost.md) | **Host API** — 43+ functions (object_*, idempotency, oracle, staking, crosschain, KYA/delegation) |
+| [archeciture.md](./proposals/archeciture.md) | **Architecture** — Foundational blueprint, conceptual architecture, component diagram |
 | [io.md](./proposals/io.md) | Load/write/execute, race prevention, MVCC + Block-STM, nonce design |
 | [storage.md](./proposals/storage.md) | WASM storage model — linear memory + host-provided object/KV |
 | [vm-2.md](./proposals/vm-2.md) | v2.0 compatibility matrix |
@@ -141,6 +142,7 @@ MormTest — local WASM testing, agentic workflows, MCP.
 | Concept | Reference |
 |---------|-----------|
 | Current production spec | [draft11-v2.6.md](./proposals/draft11-v2.6.md) |
+| Architecture (foundational blueprint) | [archeciture.md](./proposals/archeciture.md) |
 | Host API (43+ functions) | [keyhost.md](./proposals/keyhost.md) |
 | Object model + MVCC | [io.md](./proposals/io.md), [storage.md](./proposals/storage.md) |
 | Deployment flow | [cost.md](./cost/cost.md) |
