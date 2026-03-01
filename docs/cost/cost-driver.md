@@ -6,21 +6,21 @@ This table covers:
 - **MsgMigrate** (upgrading an existing contract)
 - **MsgDeleteCode** (cleanup unused code, full refund if no instances remain)
 
-All amounts are in **$MORPH** (native token).  
+All amounts are in **$MORM** (native token).  
 The model is **refundable** (deposit locked, not burned), **spam-resistant**, and **amendable via Step 9 constitutional tx**.
 
 ### Core Parameters (Constitutional Defaults – Amendable)
-- **Base storage rate**: 1 $MORPH per 100 000 bytes (100 KB) of **compressed bytecode** (zstd recommended/required)
-- **Minimum code deposit**: 0.1 $MORPH (prevents dust spam for tiny files)
+- **Base storage rate**: 1 $MORM per 100 000 bytes (100 KB) of **compressed bytecode** (zstd recommended/required)
+- **Minimum code deposit**: 0.1 $MORM (prevents dust spam for tiny files)
 - **Compression**: Mandatory zstd (or equivalent); deposit calculated after compression
-- **Instantiation flat fee**: 0.02 $MORPH (covers object creation + small initial state)
-- **Migrate flat fee**: 0.05 $MORPH (slightly higher due to potential state migration logic)
+- **Instantiation flat fee**: 0.02 $MORM (covers object creation + small initial state)
+- **Migrate flat fee**: 0.05 $MORM (slightly higher due to potential state migration logic)
 - **Flash path eligibility**: Yes for non-conflicting deploys (no waves needed → faster inclusion)
 - **Refund policy**: Full code deposit refund on successful MsgDeleteCode (if zero instances remain); no refund on instantiation/migrate fees
 
 ### Full Cost Formula Table
 
-| Action                  | Formula / Calculation                                                                 | Typical Real-World Size (optimized Rust WASM) | Deposit / Fee ($MORPH) | Approx. USD Equivalent (at $MORPH = $5) | Notes / Examples |
+| Action                  | Formula / Calculation                                                                 | Typical Real-World Size (optimized Rust WASM) | Deposit / Fee ($MORM) | Approx. USD Equivalent (at $MORPH = $5) | Notes / Examples |
 |-------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------|-------------------------|------------------------------------------|------------------|
 | **MsgStoreCode** (upload bytecode) | max( min_deposit, ceil(compressed_bytes / 100_000) × 1 )                             | 40–80 KB (minimal / counter)                 | 0.4 – 0.8              | $2.00 – $4.00                           | Hello world / basic counter |
 |                         |                                                                                       | 80–150 KB (token / cw20-like)                | 0.8 – 1.5              | $4.00 – $7.50                           | Fungible token standard |
