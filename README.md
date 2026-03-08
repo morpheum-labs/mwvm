@@ -1,38 +1,29 @@
-# Morpheum WASM VM (MWVM)
+# MWVM — Morpheum WASM VM  
+**Portable Off-Chain Runtime & SDK for Morpheum AI Agents**
 
-**Morpheum WASM Virtual Machine** — the WebAssembly smart contract runtime for the Morpheum blockchain, optimized for 9-step DAG consensus, object-centric state, and agentic workflows.
+MWVM is the developer-first, off-chain companion to the on-chain AgentCore VM in Mormcore.  
+It lets you build, test, simulate, and orchestrate **AI agents** using the exact same WASM bytecode that will run verifiably on-chain — with rich local capabilities that the deterministic chain layer intentionally strips away for security and consensus.
 
-## Overview
+### Why MWVM Exists
+In 2026, AI agents need more than centralized sandboxes or fragmented runtimes.  
+MWVM gives you:
+- **Behavioral parity** — same binary runs locally (rich) and on-chain (thin/deterministic) via shared primitives
+- **Rich host functions** — local inference batching, vector search in LocalMemory, TEE/zkML mocks, multi-agent swarms, MCP/A2A gateways
+- **Fast iteration** — no testnet waits, no gas during dev, full simulation & parity testing
+- **Agent composability** — build swarms, test recursive logic, prototype Bucket-as-Service extensions
 
-MWVM executes WASM smart contracts on Morpheum with:
+This is the off-chain "home" where agents come to life before they earn $MORM, verify proofs, or settle on-chain.
 
-- **DAG-native execution** — Causal snapshots from blocklace; Block-STM parallel scheduler; Flash path for sub-3δ finality
-- **Object-centric MVCC** — Versioned objects (ID + Owner + Version + Data); no global shared mutable state
-- **43+ Host API functions** — Object ops, idempotency, oracle, staking/restaking, crosschain, KYA/DID delegation, Safe Native Infrastructure Wrappers (v2.5+), ZK/TEE/FHE
-- **Gasless + deposit** — Refundable storage deposit (1 $MORPH / 100 KB); no execution gas
-- **Agentic-first** — Idempotency keys, safe retries, multi-agent testing via MormTest + MCP
+### Quick Start
+```bash
+# Install CLI (once published)
+cargo install mwvm-cli
 
-## Documentation
+# Run a simple agent
+mwvm run path/to/your_agent.wasm
 
-All design, cost, MEV, and test-framework documentation lives in [`docs/`](./docs/):
+# Launch a gateway for MCP/A2A
+mwvm gateway --port 8080
 
-| Section | Contents |
-|---------|----------|
-| [**Proposals**](./docs/proposals/) | Design proposals, VM spec (v2.6), Host API, storage, I/O, KYA/DID delegation, Bucket-as-Service |
-| [**Cost**](./docs/cost/) | Deployment flow, storage deposits, cost formulas |
-| [**MEV**](./docs/mev/) | MEV analysis: WASM vs EVM |
-| [**Test Framework**](./docs/test-framework/) | MormTest, agentic testing, MCP protocol |
-
-**Start here**: [docs/README.md](./docs/README.md) — full index and quick reference.
-
-**Idea developments**: [docs/government/pretext/prelogue.md](./docs/government/pretext/prelogue.md) — Web 4.0, agent taxonomy, Level 5 society (conceptual context).
-
-## Compatibility
-
-- **Mormcore** — 9-step DAG consensus (Blocklace, Waves, Frosty, Finality, Recovery, Amendment)
-- **Flash path** — Fast finality for non-conflicting transactions
-- **Object-centric state** — RocksDB + TimescaleDB backend
-
-## Status
-
-Design phase (February 2026). Specification is production-ready (v2.6); implementation targets Mormcore integration.
+# Simulate a swarm
+mwvm swarm --count 10 --wasm your_multi_agent.wasm
