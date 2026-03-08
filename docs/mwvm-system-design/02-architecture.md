@@ -1,117 +1,133 @@
 # MWVM System — Architecture
 
 **Version**: 1.0  
-**Date**: 05 March 2026  
-**Status**: Design
+**Date**: 08 March 2026  
+**Status**: Design  
+**Source**: Aligned with `mwvm/crates`
 
 ## High-Level Architecture
 
+```mermaid
+graph TD
+    subgraph "morpheum-primitives"
+        P["VM types, opcodes, host signatures"]
+    end
+
+    subgraph "mwvm-core"
+        Engine["Engine + Linker"]
+        Hosts["Host Functions"]
+        Memory["LocalMemory"]
+        Batcher["ContinuousBatcher"]
+        Sim["Simulator"]
+    end
+
+    subgraph "mwvm-sdk"
+        Agent["Agent / AgentBuilder"]
+        Runtime["SdkRuntime"]
+    end
+
+    subgraph "mwvm-gateway"
+        MCP["MCP"]
+        A2A["A2A"]
+        DID["DID"]
+        X402["x402"]
+    end
+
+    subgraph "mwvm-orchestrator"
+        Swarm["Swarm"]
+        Bus["MessageBus"]
+    end
+
+    subgraph "mwvm-cli"
+        CLI["run, swarm, gateway, test"]
+    end
+
+    subgraph "mwvm-wasm"
+        TS["TypeScript bindings"]
+    end
+
+    P --> Engine
+    Engine --> Hosts & Memory & Batcher
+    Engine --> Agent & Runtime
+    Agent --> MCP & A2A & DID & X402
+    Agent --> Swarm & Bus
+    CLI --> Agent & Swarm & MCP
+    TS -.->|"HTTP to gateway"| MCP
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           MWVM ECOSYSTEM                                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌──────────────────────┐     KYA/VC + Quotas                               │
-│  │  AGENT / WASM         │◄────────────────────────────────────────────────│
-│  │  (Transient Memory)   │     Safe Wrappers only                             │
-│  ├──────────────────────┤     ┌──────────────────────┐                       │
-│  │ - No raw native      │     │  HOST API            │                       │
-│  │ - VC-scoped calls    │     │  (Safe Wrappers)     │                       │
-│  └──────────┬───────────┘     ├──────────────────────┤                       │
-│             │                 │ - deploy_bucket_product│                      │
-│             │  Wrapper calls  │ - list_bucket_for_sale │                      │
-│             │  (O(1) cached)  │ - buy_bucket          │                      │
-│             │                 │ - issue_token         │                      │
-│             │                 │ - bank_transfer       │                      │
-│             │                 │ - place_limit_order   │                      │
-│             │                 └──────────┬───────────┘                       │
-│             │                            │                                    │
-│             │                 ┌──────────▼───────────┐                       │
-│             │                 │  NATIVE INFRA        │     Mormcore           │
-│             │                 │  (Never Exposed Raw) │──────────────────────►│
-│             │                 ├──────────────────────┤  CLAMM, CLOB,         │
-│             │                 │ - Bucket/Perp core   │   Buckets, Staking,   │
-│             │                 │ - CLAMM/ReClamm      │   Bank, Order placement│
-│             │                 │ - Staking, Multisig   │                       │
-│             │                 └──────────────────────┘                       │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+
+## Crate Layout
+
+| Crate | Contents |
+|-------|----------|
+| **mwvm-core** | Engine, linker, host functions (infer, store_context, vector_search, zkml_tee, actor_messaging), LocalMemory, ContinuousBatcher, Simulator, error |
+| **mwvm-sdk** | Agent, AgentBuilder, SdkRuntime, SdkConfig — re-exports from core |
+| **mwvm-gateway** | Gateway, GatewayBuilder, GatewayConfig; mcp_server, a2a_server, did_resolver, x402_handler |
+| **mwvm-orchestrator** | Swarm, SwarmBuilder, MessageBus, Event |
+| **mwvm-cli** | run, swarm, gateway, test commands |
+| **mwvm-wasm** | McpToolCall, tools_list_request, hex_to_bytes, bytes_to_hex |
+| **mwvm-tests** | parity, integration, gateway_e2e |
+
+## Host Functions
+
+| Host | Purpose |
+|------|---------|
+| **infer** | Local inference via ContinuousBatcher; uses morpheum-primitives InferenceRequest |
+| **store_context** | Store blob under key in LocalMemory |
+| **vector_search** | Cosine-similarity search over embeddings in LocalMemory |
+| **zkml_verify** | Mock zkML verification (simulation) |
+| **tee_verify** | Mock TEE attestation (simulation) |
+| **actor_messaging** | Send message to agent (actor model) |
+
+All host functions use the shared namespace from morpheum-primitives.
+
+## Gateway Endpoints
+
+| Protocol | Path | Purpose |
+|----------|------|---------|
+| MCP | `/mcp` | tools/list, tools/call (JSON-RPC) |
+| A2A | `/a2a` | AgentCard (dynamic) |
+| DID | `/did/{agent-id}` | DID Document |
+| x402 | `/x402/pay` | Payment required (402 when unpaid) |
+
+Gateway binds to configurable address (default 0.0.0.0:8080). Each protocol can be enabled or disabled via GatewayConfig.
 
 ## Cross-Module Data Flow
 
 ```mermaid
 graph TD
-    Agent["Agent / WASM"] -->|VC + Safe Wrapper| HostAPI["Host API"]
-    HostAPI -->|deploy_bucket_product| BaS["BaS (Native)"]
-    HostAPI -->|bank_transfer, place_limit_order| Native["Native Infra"]
-    Gov["Step 9 Governance"] -->|Constitutional Params| HostAPI
-    Gov -->|Ratify| WASMPolicy["WASM Policy Contracts"]
-    BaS -->|Health Snapshot| Secondary["Secondary/P2P Market"]
-    BaS -->|Insurance Fund| Insurance["Insurance Fund"]
+    CLI["CLI / SDK User"] -->|"create agent"| Agent["Agent"]
+    Agent -->|"load WASM"| Engine["MwvmEngine"]
+    Engine -->|"HostRegistry"| Hosts["Host Functions"]
+    Hosts -->|"KV + vector"| Memory["LocalMemory"]
+    Hosts -->|"batch"| Batcher["ContinuousBatcher"]
+    Gateway["Gateway"] -->|"engine"| Engine
+    Swarm["Swarm"] -->|"engine"| Engine
+    Swarm -->|"publish"| Bus["MessageBus"]
 ```
-
-### Safe Wrapper Flow
-
-1. Agent/WASM calls safe wrapper (e.g., `deploy_bucket_product`)
-2. Host API checks `check_delegation_scope` + `vc_verify` (O(1) cached)
-3. Quota check (constitutional params)
-4. Native operation executed atomically
-5. Immutable action/delegation log emitted
-6. Fail closed on quota exceed or VC mismatch
 
 ## Component Dependencies
 
 ### MWVM Depends On
 
-| Module | Provides | MWVM Consumes |
-|--------|----------|---------------|
-| Mormcore | Native bucket, CLAMM, CLOB, staking, bank | Safe wrapper targets |
-| KYA/VC | DID validation, VC verification | Delegation checks |
-| Governance | Constitutional params | read_constitution_param |
+| Module | Provides |
+|--------|----------|
+| morpheum-primitives | VM types, opcodes, host signatures, MemoryBackend trait |
+| wasmtime | WASM engine, linker, store |
+| tokio | Async runtime |
+| axum | HTTP router for gateway |
+| dashmap | Concurrent KV for LocalMemory |
+| flume | Channels for MessageBus |
 
 ### MWVM Provides
 
 | Consumer | Receives |
 |----------|----------|
-| Agents | Safe wrappers, BaS deploy/list/buy |
-| Sub-DAOs | WASM policy deployment (with ratification) |
-| Indexer | BaS events, listing metadata |
-
-## DAG-Native Optimizations
-
-| Feature | How It Works | Benefit |
-|---------|--------------|---------|
-| Causal Snapshot Materialization | host_get_dag_context() + versioned snapshot | Deterministic execution on partial-order DAG |
-| Stable Contract Address | Instance address never changes; only code_ref updates | Seamless upgrades + delegation |
-| Agent Delegation Routing | DID hash → shard routing + reputation cache | Low-latency, reputation-aware calls |
-
-## Safe Native Infrastructure Wrappers (v2.5)
-
-| Wrapper | VC Claim Required | Resource Quota |
-|---------|-------------------|----------------|
-| issue_token | can_issue_token(max_supply, expiry) | 1 new token/epoch per DID |
-| bank_transfer | can_transfer(to, max_amount, token, expiry) | 20 transfers/sec, $100k daily |
-| bucket_to_bucket_transfer | can_transfer_bucket(from, to, max_amount) | Same as bank_transfer |
-| bank_to_bucket_transfer | can_fund_bucket(bucket_id, max_amount) | Same + IM check |
-| bucket_to_bank_transfer | can_withdraw_from_bucket(bucket_id, max_amount) | Cannot drop below IM |
-| place_limit_order | can_place_order(market, max_size, max_freq, expiry) | 50 orders/sec, daily notional cap |
-| cancel_limit_order | can_cancel_order(market, max_count) | 100 cancels/sec |
-| multi_send | can_multi_send(max_recipients, max_total_value) | Max 50 recipients/call |
-| deploy_bucket_product | can_deploy_bucket(type, max_value, expiry) | 5 products/DID/epoch |
-| list_bucket_for_sale | can_sell_bucket(bucket_id, min_price, max_premium) | Listing fee 5 $MORM |
-| buy_bucket | can_buy_bucket(listing_id, max_price) | Atomic escrow |
-
-## Performance Targets
-
-| Operation | Target |
-|-----------|--------|
-| Wrapper + BaS checks | <0.4% overhead (O(1) cached) |
-| VC validation | O(1) cached |
-| DAG read (depth calc) | <1 ms |
+| Agent developers | SDK, CLI, gateways |
+| MCP/A2A clients | HTTP endpoints |
+| Mormcore | Parity-tested WASM blobs |
 
 ## Related Documents
 
-- [03-bucket-as-service.md](03-bucket-as-service.md) — BaS rule set
-- [04-governance.md](04-governance.md) — Hybrid governance
-- [09-module-structure.md](09-module-structure.md) — Native vs WASM scope
+- [09-module-structure.md](09-module-structure.md) — Crate structure and integration
+- [11-mwvm-vs-mormcore-vm.md](11-mwvm-vs-mormcore-vm.md) — MWVM vs Mormcore responsibilities
+- [13-mwvm-architecture-flow.md](13-mwvm-architecture-flow.md) — Execution flows

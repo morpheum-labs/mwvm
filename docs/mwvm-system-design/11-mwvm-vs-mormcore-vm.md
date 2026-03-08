@@ -1,134 +1,90 @@
-# Comprehensive Distinctions: mwvm (Morpheum WASM Virtual Machine) vs Mormcore Runtime VM Responsibilities
+# MWVM vs Mormcore VM — Responsibilities
 
-**Version**: 1.0 (Locked March 06, 2026)  
-**Purpose**: 100% clean separation of concerns + maximum DRY while delivering both **native on-chain superiority** (sub-ms deterministic AI inside the L1) and **portable off-chain developer experience** (local simulation, debugging, multi-agent orchestration, cross-protocol compatibility).
+**Version**: 1.0  
+**Date**: 08 March 2026  
+**Status**: Design  
+**Source**: Aligned with `mwvm/crates`
 
-This architecture is **explicitly modeled** on proven patterns from Solana (SVM + solana-program), ICP (Canister VM + ic-cdk), and CosmWasm (wasmd + cosmwasm-std). No overlap, no duplication, no forced coupling.
-
-## 1. Overall Layered Architecture (Visual)
+## 1. Layered Architecture
 
 ```mermaid
 graph TD
-    subgraph "Shared Layer (Single Source of Truth)"
-        P["morpheum-primitives<br/>• VM types<br/>• Opcodes & host signatures<br/>• InferenceRequest, ZkmlProof, MemoryEntry, etc.<br/>• bytemuck + prost"]
+    subgraph "Shared Layer"
+        P["morpheum-primitives — VM types, opcodes, host signatures"]
     end
 
-    subgraph "mwvm Repo (Portable Off-Chain Runtime & SDK)"
-        M["mwvm Core Engine<br/>• Full wasmtime + rich host impl<br/>• Local model serving, continuous batching<br/>• TEE/zkML simulation, debugger<br/>• Multi-agent orchestration<br/>• Rust + TS SDKs + MCP/A2A gateways"]
+    subgraph "MWVM (Off-Chain)"
+        M["mwvm-core — Full wasmtime, rich hosts, LocalMemory, batcher"]
     end
 
-    subgraph "Mormcore (On-Chain L1)"
-        R["crates/runtime<br/>• AgentCoreVmHotPath trait<br/>• Thin wasmtime host (deterministic)<br/>• Injected via ModuleGraph<br/>• Core-pinned ShardExecutor only"]
-        subgraph "Agent Modules"
-            A["identity, memory, validation, intent..."]
-        end
+    subgraph "Mormcore (On-Chain)"
+        R["AgentCore VM — Thin wasmtime, deterministic host"]
     end
 
     P --> M & R
-    M -.->|"optional RPC / Portal hot-path"| R
-    R --> A
-    style P fill:#4ade80,stroke:#22c55e,stroke-width:3px
-    style M fill:#60a5fa,stroke:#3b82f6,stroke-width:3px
-    style R fill:#f97316,stroke:#ea580c,stroke-width:3px
+    M -.->|"optional RPC"| R
 ```
 
-## 2. Shared Layer: `morpheum-primitives` (Already Exists — Zero New Work)
+## 2. Shared Layer: morpheum-primitives
 
-This is the **only** place where VM contracts are defined. Everything else re-exports or implements against it.
+Single source of truth for VM contracts. Both MWVM and Mormcore implement against it.
 
-**Contained in `morpheum-primitives`** (extended with new `vm/` module):
-- All types: `InferenceRequest`, `ZkmlProof`, `TeeAttestation`, `MemoryEntry`, `VectorEmbedding`, `InferenceResponse`, etc. (all `bytemuck::Pod` + `prost`)
-- Opcode / host-function signatures (exact function names, param layouts)
-- Error variants (`VmError`)
-- Constants (model commitment format, vector dimension defaults)
-- Conversion traits (`FromProto`, `ToBytes`)
+**Contained in morpheum-primitives:**
+- Types: InferenceRequest, ZkmlProof, TeeAttestation, MemoryEntry, VectorEmbedding, etc.
+- Opcode and host-function signatures
+- Error variants, constants
+- MemoryBackend trait
+- Validatable trait
 
-**DRY guarantee**: Both mwvm and Mormcore import `morpheum-primitives::vm::*` as the canonical definition. Changing an opcode signature updates both instantly.
+**DRY guarantee:** Changing an opcode or type updates both runtimes.
 
-## 3. mwvm Repo Responsibilities (Portable Off-Chain / Developer Runtime)
+## 3. MWVM Responsibilities (Off-Chain)
 
-**Repo name**: `mwvm` (standalone or workspace sibling)  
-**Primary audience**: Agent developers, SDK users, off-chain simulators, MCP/A2A clients, local testing.
+**Primary audience:** Agent developers, SDK users, local testing, MCP/A2A clients.
 
-**Exact responsibilities** (all rich, non-deterministic features live here):
-- Full `wasmtime` engine with **rich host implementations** (local quantized model serving via candle/tract, continuous batching, streaming responses)
-- Simulation & debugging tools (step-through, breakpoints, local state fork, mock TEE/zkML)
-- Multi-agent orchestration runtime (spawn 1000s of agents, message passing, shared memory simulation)
-- Full SDKs:
-  - Rust: `mwvm::AgentRuntime::new()` + async host calls
-  - TypeScript: `mwvm-js` with WASM bindings
-- MCP/A2A/DID/x402 gateways (exact external interfaces — closes Gap 8)
-- Local Persistent Memory tier (file system + embedded HNSW, no RocksDB requirement)
-- Offline mode + testnet fork simulation (connect to real chain or run 100% locally)
-- Model registry client (download commitments, local caching)
+**Implemented in mwvm crates:**
+- Full wasmtime engine with rich host implementations
+- Local inference via ContinuousBatcher
+- LocalMemory — KV store + brute-force vector search
+- TEE/zkML simulation (mock attestation, mock verification)
+- Multi-agent Swarm and MessageBus
+- MCP, A2A, DID, x402 gateways
+- Rust SDK (Agent, AgentBuilder, SdkRuntime)
+- TypeScript bindings (mwvm-wasm) for gateway clients
+- CLI: run, swarm, gateway, test
 
-**No on-chain code** — never touches consensus, sharding, or hot-path injection.  
-**Performance focus**: Developer velocity + simulation speed (not deterministic replay).
+**No on-chain code** — never touches consensus or sharding.
 
-## 4. Mormcore Runtime Responsibilities (On-Chain Deterministic Kernel)
+## 4. Mormcore Responsibilities (On-Chain)
 
-**Location**: `crates/runtime/src/agent_core_vm.rs` + extension to existing `vm.rs` (feature-gated behind `ai`)
+**Primary audience:** L1, ShardExecutor, AgentPortal nodes.
 
-**Primary audience**: The L1 itself (ShardExecutor, AgentPortal nodes, validators).
+**Implemented in Mormcore:**
+- Thin wasmtime host inside ShardExecutor
+- Deterministic, replayable execution
+- Zero-copy host functions calling existing hot-paths
+- infer → model commitments, memory, proof submission
+- zkml_verify, tee_verify → native verification
+- vector_search, store_context → PersistentMemoryHot
+- Runs on AgentPortal nodes; validators get no-op stub for replay
 
-**Exact responsibilities** (only the minimal, deterministic subset):
-- Thin `wasmtime` engine **hosted inside** `ShardExecutor` (core-pinned, deterministic, replayable)
-- `AgentCoreVmHotPath` trait (injected via existing `ModuleGraph` + `Arc<dyn Trait>`)
-- Zero-copy host functions that call **existing** hot-paths:
-  - `infer()` → calls model commitments + `memory` + auto-submits proof to `validation`
-  - `zkml_verify()` / `tee_verify()` → native halo2/TEE checks (feature-gated)
-  - `vector_search()` / `store_context()` → direct call to `memory::PersistentMemoryHot`
-- Only runs on **AgentPortal nodes** (validators get lightweight no-op stub for replay)
-- Atomic integration: one WASM call = memory update + proof submission + reputation boost in same tx batch
+**No developer tools** — pure on-chain kernel.
 
-**No developer tools**, no model serving, no simulation — pure on-chain kernel.
+## 5. Interaction Boundaries
 
-## 5. Clean Interaction Boundaries (100% DRY Enforcement)
+- **Shared:** Types and signatures in morpheum-primitives
+- **No code sharing** between MWVM and Mormcore (except primitives)
+- **Versioning:** Primitives version pins both
+- **Testing:** mwvm-tests parity suite runs same WASM on both; asserts identical results
 
-```mermaid
-sequenceDiagram
-    participant Developer
-    participant mwvm
-    participant Primitives
-    participant Mormcore
-    Developer->>mwvm: mwvm::AgentRuntime::infer(...)
-    mwvm->>Primitives: use exact types/signatures
-    alt running locally
-        mwvm-->>Developer: rich simulation
-    else on-chain
-        mwvm->>Mormcore: Portal hot-path / gRPC (optional)
-        Mormcore->>Primitives: same types
-        Mormcore-->>mwvm: deterministic result + proof
-    end
-```
+## 6. Why This Split Works
 
-- **Only shared**: types + signatures in `morpheum-primitives`
-- **No code sharing** between mwvm and Mormcore (except the primitives re-export)
-- **Versioning**: primitives version pins both repos (Cargo workspace or published crate)
-- **Testing**: mwvm runs full test suite against a mock Mormcore kernel; Mormcore runs replay tests against wasm blobs compiled with mwvm SDK
+- **Separation of concerns:** MWVM = developer experience; Mormcore = deterministic L1
+- **DRY at contract level:** One definition of host semantics; two implementations
+- **Future-proof:** New opcode in primitives → both sides update
+- **Performance:** On-chain stays minimal; off-chain gets rich features
 
-## 6. Why This Is Optimal, 100% Clean & DRY
+## Related Documents
 
-- **Separation of Concerns**: mwvm = developer experience & simulation; Mormcore = deterministic L1 execution. No mixing.
-- **DRY at the contract level**: One definition of "what `infer()` means" (primitives). Each side implements its own host logic.
-- **Future-proof**: New opcode? Add to primitives → both sides update automatically. New protocol (e.g. NIST ANP)? Add to mwvm only.
-- **Performance**: On-chain stays sub-100 µs (hot-path); off-chain gets rich features without bloat.
-- **Interoperability**: ERC-8004/MCP/A2A tools import `mwvm` SDK → works with or without the chain.
-- **Proven**: Identical to how Solana, ICP, and CosmWasm scaled to millions of developers.
-
-This structure gives you exactly what you originally wanted (separate mwvm repo) **plus** the native on-chain moat the gap analysis required — with zero compromises.
-
-## Implementation Readiness
-
-The shared primitives extension, mwvm skeleton, and Mormcore runtime integration are ready to generate **right now** in the exact same professional format as your attached documents.
-
-Just say:  
-**"generate mwvm skeleton + mormcore integration"**  
-and I will deliver:
-- Full `mwvm` repo structure + Cargo.toml
-- Updated `morpheum-primitives::vm`
-- `crates/runtime/agent_core_vm.rs` + `vm.rs` extension
-- Integration tests proving on-chain ↔ off-chain parity
-- Updated architecture.md section
-
-This completes the VM pillar perfectly. Your agent-native L1 is now architecturally bulletproof. Ready when you are. 🚀
+- [12-native-agent-core.md](12-native-agent-core.md) — Native Agent Core guide
+- [13-mwvm-architecture-flow.md](13-mwvm-architecture-flow.md) — Architecture and flows

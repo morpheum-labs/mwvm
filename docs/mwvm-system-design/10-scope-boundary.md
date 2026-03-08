@@ -1,95 +1,88 @@
 # MWVM — Scope Boundary & Responsibility Matrix
 
 **Version**: 1.0  
-**Date**: 05 March 2026  
+**Date**: 08 March 2026  
 **Status**: Design  
-**Purpose**: Locked responsibility boundary for MWVM ecosystem.
+**Source**: Aligned with `mwvm/crates`
 
 ## 1. Purpose
 
-This document **locks** the exact responsibility boundary of the MWVM ecosystem so that:
+This document locks the responsibility boundary of the MWVM crates so that:
 
-- Native infrastructure remains protected and never exposed raw
-- WASM operates only through safe wrappers with KYA/VC and quotas
-- Hybrid governance keeps core native and application-level in WASM
-- Single-responsibility per layer (Host API, BaS, Governance, Recursive Risk)
+- Each crate has a single, clear responsibility
+- Dependencies flow inward (adapters → application → core)
+- No overlap between crates
 
-## 2. Locked Ownership Boundaries
+## 2. Crate Ownership Boundaries
 
-| Layer | Sole Owner Of |
+| Crate | Sole Owner Of |
 |-------|---------------|
-| **Native Infrastructure** | Consensus, CLAMM, CLOB, buckets, staking core, multisig, bank transfers, order placement |
-| **Host API** | Safe wrappers, capability checks, version checks, KYA/VC enforcement, quota checks |
-| **BaS** | deploy_bucket_product, list_bucket_for_sale, buy_bucket; product types; health snapshots |
-| **Governance (Step 9)** | Constitutional amendments, global params, supermajority voting, emergency pause |
-| **WASM Contracts** | Application policies, sub-DAOs, custom templates (with native ratification) |
-| **Recursive Risk** | Depth limiter, skin-in-the-game, effective leverage cap (enforced by native) |
+| **mwvm-core** | Engine, linker, host functions, LocalMemory, batcher, simulation, error |
+| **mwvm-sdk** | Agent, AgentBuilder, SdkRuntime, SdkConfig, SdkError |
+| **mwvm-gateway** | Gateway, GatewayBuilder, GatewayConfig; MCP, A2A, DID, x402 routes |
+| **mwvm-orchestrator** | Swarm, SwarmBuilder, MessageBus, Event |
+| **mwvm-cli** | run, swarm, gateway, test commands |
+| **mwvm-wasm** | McpToolCall, tools_list_request, hex_to_bytes, bytes_to_hex |
+| **mwvm-tests** | parity, integration, gateway_e2e tests |
 
-## 3. Core Scope (MUST be implemented)
+## 3. In-Scope (Implemented)
 
-| Category | Included? | Detail |
-|----------|-----------|--------|
-| Safe Native Wrappers | YES | issue_token, bank_transfer, bucket transfers, place_limit_order, deploy_bucket_product, list_bucket_for_sale, buy_bucket |
-| KYA/VC Delegation | YES | did_validate, vc_verify, check_delegation_scope, revoke_vc; scoped claims per operation |
-| Bucket-as-Service | YES | Position/asset/mix-backed products; atomic escrow; insurance fund |
-| Hybrid Governance | YES | Native Step 9 for core; WASM for application-level with native ratification |
-| Recursive Risk Controls | YES | Depth limiter (max 4), skin-in-the-game, effective leverage cap |
-| Overlap Penalties | YES | Economic disincentives for WASM duplicating native; Mormtest guidance |
-| Constitutional Params | YES | All bas_*, wasm_overlap_*, clamm_a2a_* params; Step 9 amendable |
+| Category | Crate | Detail |
+|----------|-------|--------|
+| WASM Engine | mwvm-core | wasmtime, linker, host registration |
+| Host Functions | mwvm-core | infer, store_context, vector_search, zkml_tee, actor_messaging |
+| Persistent Memory | mwvm-core | LocalMemory — KV + vector search |
+| Continuous Batching | mwvm-core | ContinuousBatcher |
+| Simulation | mwvm-core | SimulationMode, Simulator |
+| SDK | mwvm-sdk | Agent, AgentBuilder, SdkRuntime |
+| Gateways | mwvm-gateway | MCP, A2A, DID, x402 |
+| Orchestrator | mwvm-orchestrator | Swarm, MessageBus |
+| CLI | mwvm-cli | run, swarm, gateway, test |
+| TypeScript | mwvm-wasm | Gateway client bindings |
+| Tests | mwvm-tests | Parity, integration, E2E |
 
-## 4. Explicitly Out-of-Scope (MUST NOT)
+## 4. Explicitly Out-of-Scope (Mormcore)
 
 | Feature | Belongs In | Reason |
 |---------|------------|--------|
-| Raw native access | Never | WASM never gets direct access to native primitives |
-| Pure WASM governance | N/A | Core remains native; only application-level in WASM |
-| Uncontrolled recursion | N/A | Depth limiter and skin-in-the-game mandatory |
-| EVM-style upgrade proxies | N/A | Object-centric model; native migration via MsgMigrate |
-| Funding rate calculation | fundingrate (rclob) | MWVM/BaS scope is bucket products, not perp funding |
-| Order matching | clob (rclob) | MWVM provides safe wrappers; CLOB owns matching |
+| On-chain execution | Mormcore | MWVM is off-chain only |
+| Consensus, sharding | Mormcore | Not in MWVM scope |
+| Bucket-as-Service | Mormcore | See 03-bucket-as-service |
+| KYA/VC, governance | Mormcore | See 04-governance |
+| Funding rate, order matching | rclob | CLOB scope |
 
-## 5. Enforcement Rules
+## 5. Dependency Rules
 
-1. **WASM** calls only safe wrappers — never raw native functions
-2. **Host API** enforces VC + quota on every high-risk call
-3. **BaS** uses deploy_bucket_product, list_bucket_for_sale, buy_bucket exclusively
-4. **Governance** amends params via MsgConstitutionalAmendment; Step 9 supermajority
-5. **Recursive Risk** enforced at native bucket/risk layer; depth and lock checked on create/deposit
+1. **mwvm-core** — Depends only on morpheum-primitives, wasmtime, tokio, dashmap, etc. No mwvm-* crates.
+2. **mwvm-sdk** — Depends on mwvm-core.
+3. **mwvm-gateway** — Depends on mwvm-sdk (for MwvmEngine).
+4. **mwvm-orchestrator** — Depends on mwvm-sdk.
+5. **mwvm-cli** — Depends on mwvm-sdk, mwvm-gateway, mwvm-orchestrator.
+6. **mwvm-wasm** — Depends on serde_json, hex, wasm-bindgen. No mwvm-core (wasmtime not available in wasm32).
+7. **mwvm-tests** — Depends on mwvm-core, mwvm-orchestrator, mwvm-gateway.
 
-## 6. Cross-Layer Dependency Diagram
+## 6. Cross-Layer Diagram
 
 ```mermaid
 graph TD
-    Agent["Agent / WASM"] -->|VC + Wrapper| HostAPI["Host API"]
-    HostAPI -->|Enforce| Native["Native Infra"]
-    Gov["Step 9 Gov"] -->|Params| HostAPI
-    Gov -->|Ratify| WASM["WASM Policies"]
-    BaS["BaS"] -->|Uses| Native
-    Risk["Recursive Risk"] -->|Enforced by| Native
+    CLI["mwvm-cli"] --> SDK["mwvm-sdk"]
+    CLI --> Gateway["mwvm-gateway"]
+    CLI --> Orch["mwvm-orchestrator"]
+    Gateway --> SDK
+    Orch --> SDK
+    SDK --> Core["mwvm-core"]
+    Tests["mwvm-tests"] --> Core & Orch & Gateway
+    Wasm["mwvm-wasm"] -.->|"HTTP"| Gateway
 ```
 
-## 7. Fail-Safe Countermeasure Index
+## 7. Key Invariants
 
-| Mechanism | Governance Backing |
-|-----------|-------------------|
-| Safe Mode (emergency pause) | MORP-GOV-001, gov-params |
-| Constitutional params | gov-params, MORP-GOV-001 |
-| Insurance fund | bucket-as-insurance, BA-OVERLAP-PENALTY-001 |
-| VC scoping & A2A quotas | MORP-GOV-2026-02, MORP-GOV-2026-03 |
-| Anti-overlap penalties | BA-OVERLAP-PENALTY-001 |
-| Hybrid governance | design, hypbrid-governance |
-
-## 8. Key Invariants
-
-- **Host is God**: WASM = pure compute; all I/O via Host API
-- **Delegation-first**: All bucket creation/sale through KYA/VC
-- **Atomic escrow**: Every buy_bucket is atomic — no reentrancy
-- **Constitutional tunability**: All params Step 9 amendable
-
-This boundary guarantees **maximum security** while enabling permissionless agentic innovation.
+- **Core is engine-only** — No HTTP, no CLI, no gateway logic
+- **SDK is facade** — No duplication of core logic
+- **Gateways mount routes** — Single Axum router; protocols toggleable
+- **Orchestrator is stateless** — Swarm + MessageBus; no persistent storage
 
 ## Related Documents
 
 - [00-mwvm-business-scope.md](00-mwvm-business-scope.md) — Business scope
-- [09-module-structure.md](09-module-structure.md) — Native vs WASM scope
-- [../government/README.md](../government/README.md) — Governance index
+- [09-module-structure.md](09-module-structure.md) — Crate structure

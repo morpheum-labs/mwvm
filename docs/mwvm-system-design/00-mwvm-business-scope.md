@@ -1,87 +1,77 @@
-# Business Scope of the MWVM Ecosystem (Mormcore – Morpheum Context)
+# Business Scope of the MWVM Ecosystem
 
 **Version**: 1.0  
-**Date**: 05 March 2026  
+**Date**: 08 March 2026  
 **Status**: Design  
-**Purpose**: Single source of truth for MWVM business scope — Host is God, WASM is Pure Compute.
+**Source**: Aligned with `mwvm/crates`
 
 ## 1. Core Business Objective
 
-The MWVM (Morpheum WASM VM) ecosystem enables **agent-issued structural products** (Bucket-as-Service), **hybrid governance** (native core + WASM policies), and **permissionless DeFi innovation** on the Morpheum DAG. The system is built on:
+MWVM (Morpheum WASM VM) is the **portable off-chain WASM runtime and SDK** for Morpheum AI agents. It provides:
 
-- **Host is God** — WASM = transient linear memory only; every interaction with the outside world goes through the sandboxed Host API
-- **Native-only protocol primitives** — Multisig, full CLAMM/ReClamm, bucket/perp core, staking core, bank transfers, token issuance, order placement are built-in native infrastructure
-- **Safe wrappers** — Access to native features only through high-level wrappers enforcing KYA/VC delegation, business-logic scoping, and resource quotas
+- **Rich WASM execution** — Full wasmtime engine with AI host functions (inference, vector search, persistent memory, TEE/zkML simulation)
+- **Developer experience** — Rust SDK, TypeScript bindings, CLI, multi-agent orchestration
+- **Protocol gateways** — MCP, A2A, DID resolver, x402 — for interoperability with Claude, Google ADK, ERC-8004 tools
+- **Behavioral parity** — Shared primitives with Mormcore; agents compile once and run locally or on-chain
 
-## 2. Locked Ownership Clarification
+## 2. Crate Ownership
 
-| Layer | Sole Owner Of |
+| Crate | Sole Owner Of |
 |-------|---------------|
-| **Native Infrastructure** | Consensus, CLAMM, CLOB, buckets, staking core, multisig, bank transfers, order placement |
-| **Host API** | Safe wrappers, capability checks, version checks, KYA/VC enforcement |
-| **WASM Contracts** | Application-level policies, sub-DAOs, custom bucket templates, agent-specific logic |
-| **Governance (Step 9)** | Constitutional amendments, global parameters, supermajority voting |
-| **BaS** | Agent-issued structural products (position-backed, asset-backed, mix-backed) |
+| **mwvm-core** | Engine, linker, host functions, LocalMemory, batcher, simulation |
+| **mwvm-sdk** | Agent, AgentBuilder, SdkRuntime, SdkConfig — high-level facade |
+| **mwvm-gateway** | MCP, A2A, DID resolver, x402 — HTTP endpoints |
+| **mwvm-orchestrator** | Swarm, MessageBus — multi-agent coordination |
+| **mwvm-cli** | run, swarm, gateway, test commands |
+| **mwvm-wasm** | TypeScript/WASM bindings for gateway clients |
+| **mwvm-tests** | Parity, integration, gateway E2E tests |
 
-No raw native access from WASM. All high-risk operations flow through safe wrappers.
+## 3. Boundary with Mormcore
 
-## 3. Boundary with Native Infrastructure (Locked)
+MWVM is **off-chain only**. It never touches consensus, sharding, or hot-path injection. Mormcore hosts the thin deterministic AgentCore VM for on-chain execution. Both share `morpheum-primitives` for types, opcodes, and host signatures.
 
-**WASM never has raw access to native primitives.** Access is provided exclusively through safe Host API wrappers that enforce:
+| MWVM Owns | Mormcore Owns |
+|-----------|---------------|
+| Local simulation, debugging, orchestration | Consensus, state transitions, validation |
+| MCP/A2A/DID/x402 gateways | On-chain AgentPortal hot-path |
+| Rich host implementations (local inference, batching) | Thin deterministic host (sub-100 µs) |
+| Developer SDK, CLI, TypeScript bindings | ShardExecutor, ModuleGraph |
 
-- KYA/VC delegation with scoped claims
-- Business-logic scoping (e.g., `can_deploy_bucket(type, max_value, expiry)`)
-- Resource quotas (constitutional, Step 9 amendable)
-- Atomicity, version checks, safe mode
-
-| Native Owns | WASM / BaS Owns |
-|-------------|-----------------|
-| Core protocol logic (CLAMM, CLOB, buckets, staking) | Application policies, custom templates |
-| Raw bank transfers, token issuance, order placement | Safe wrapper calls with VC claims |
-| Consensus parameters, slashing | Sub-DAO voting, custom fee curves |
-| Emergency pause, validator set | Agent-deployed bucket products |
-
-## 4. Core Scope (MUST be implemented)
+## 4. Core Scope (Implemented in Crates)
 
 | Category | Included? | Detail |
 |----------|-----------|--------|
-| Bucket-as-Service | YES | deploy_bucket_product, list_bucket_for_sale, buy_bucket; position/asset/mix-backed products |
-| Safe Native Wrappers | YES | issue_token, bank_transfer, bucket_to_bucket_transfer, place_limit_order, cancel_limit_order, multi_send |
-| KYA/VC Delegation | YES | did_validate, vc_verify, check_delegation_scope, revoke_vc; scoped claims per operation |
-| Hybrid Governance | YES | Native Step 9 for core; WASM for application-level policies with native ratification |
-| Recursive Risk Controls | YES | Depth limiter (max 4), escalating skin-in-the-game, effective leverage cap ~3.5× |
-| Constitutional Params | YES | All bas_*, wasm_overlap_*, clamm_a2a_* params; Step 9 amendable |
-| Overlap Penalties | YES | Economic disincentives for WASM duplicating native primitives; Mormtest guidance |
+| WASM Engine | YES | wasmtime, linker, host registration |
+| Host Functions | YES | infer, store_context, vector_search, zkml_tee, actor_messaging |
+| Persistent Memory | YES | LocalMemory — KV store + brute-force vector search |
+| Continuous Batching | YES | ContinuousBatcher for inference |
+| Simulation | YES | SimulationMode, Simulator — fork, replay, offline |
+| SDK | YES | Agent, AgentBuilder, SdkRuntime |
+| Gateways | YES | MCP, A2A, DID, x402 |
+| Orchestrator | YES | Swarm, MessageBus |
+| CLI | YES | run, swarm, gateway, test |
+| TypeScript Bindings | YES | mwvm-wasm — McpToolCall, tools_list_request, hex utils |
+| Parity Tests | YES | Same WASM on MWVM and Mormcore; identical results |
 
-## 5. Non-Functional / Consensus Requirements
+## 5. Non-Functional Requirements
 
-- **Deterministic**: All Host API calls gas-metered, deterministic; no external randomness in WASM
-- **Permissionless**: Any KYA-verified agent can create/sell; delegation-first policy
-- **Exploit-aware**: Health snapshots, atomic escrow, insurance fund, slashing for misrepresentation
-- **$MORM-aligned**: Fees, burns, treasury buybacks, staking incentives drive token appreciation
+- **Portable** — Runs locally, in CI, or against testnet; no chain dependency for core flows
+- **Deterministic replay** — Simulation mode matches on-chain behavior (shared primitives)
+- **Zero unsafe** — All crates forbid unsafe code
+- **Observable** — Tracing throughout; structured logging
 
-## 6. Genesis / Restart Recovery
+## 6. Out-of-Scope (for MWVM Crates)
 
-Constitutional parameters are genesis-loadable and governance-updatable. Safe mode (`bas_safe_mode_enabled`, `wasm_overlap_detection_enabled`) can be toggled for emergency response. Snapshot restore + bounded replay for consensus recovery.
+- **On-chain execution** — Belongs to Mormcore
+- **Bucket-as-Service, KYA/VC, governance** — Mormcore ecosystem (see 03–08)
+- **Raw native protocol access** — MWVM provides host functions; native infra is Mormcore
 
-## 7. Out-of-Scope (for this subsystem)
+## 7. Integration Points
 
-- **Raw native access** — Never exposed to WASM
-- **Pure WASM governance** — Core remains native; only application-level policies in WASM
-- **Uncontrolled recursion** — Depth limiter and skin-in-the-game are mandatory
-- **EVM-style upgrade proxies** — Object-centric model; native migration via MsgMigrate
-
-## 8. Integration Points
-
-- **KYA/VC** → All high-risk Host API calls require valid VC with scoped claims
-- **BaS** → deploy_bucket_product, list_bucket_for_sale, buy_bucket via safe wrappers
-- **Governance** → MsgConstitutionalAmendment for param changes; Step 9 supermajority
-- **Mormtest** → Local simulation, overlap warnings, A2A quota enforcement
+- **morpheum-primitives** — Single source of truth for VM types, opcodes, host signatures
+- **Mormcore** — Optional RPC/Portal hot-path for hybrid local ↔ on-chain testing
+- **MCP/A2A/DID/x402** — Standard protocols; gateways expose canonical endpoints
 
 ---
 
-**Bottom line for Mormcore implementation**
-
-The MWVM ecosystem is the **agentic DeFi layer** of Morpheum. It enables permissionless innovation through safe wrappers, KYA/VC delegation, and Bucket-as-Service — all while protecting native infrastructure and driving $MORM value through fees, burns, and staking.
-
-See [10-scope-boundary.md](10-scope-boundary.md) and [09-module-structure.md](09-module-structure.md) for the official boundary and structure.
+**Bottom line**: MWVM is the **developer runtime** for Morpheum AI agents — rich, portable, and parity-aligned with on-chain execution.
