@@ -14,8 +14,8 @@ use super::prelude::*;
 pub fn register_zkml(linker: &mut Linker<StoreContext>, _registry: &HostRegistry) -> Result<()> {
     linker
         .func_wrap(
-            "morpheum",
-            "morpheum_zkml_verify",
+            HOST_NAMESPACE,
+            HOST_ZKML_VERIFY,
             move |mut caller: Caller<'_, StoreContext>,
                   proof_ptr: i32,
                   proof_len: i32|
@@ -52,7 +52,7 @@ pub fn register_zkml(linker: &mut Linker<StoreContext>, _registry: &HostRegistry
             },
         )
         .map_err(|e| MwvmError::HostRegistration {
-            name: "morpheum_zkml_verify",
+            name: HOST_ZKML_VERIFY,
             source: e,
         })?;
 
@@ -68,8 +68,8 @@ pub fn register_zkml(linker: &mut Linker<StoreContext>, _registry: &HostRegistry
 pub fn register_tee(linker: &mut Linker<StoreContext>, _registry: &HostRegistry) -> Result<()> {
     linker
         .func_wrap(
-            "morpheum",
-            "morpheum_tee_verify",
+            HOST_NAMESPACE,
+            HOST_TEE_VERIFY,
             move |mut caller: Caller<'_, StoreContext>,
                   att_ptr: i32,
                   att_len: i32|
@@ -115,7 +115,7 @@ pub fn register_tee(linker: &mut Linker<StoreContext>, _registry: &HostRegistry)
             },
         )
         .map_err(|e| MwvmError::HostRegistration {
-            name: "morpheum_tee_verify",
+            name: HOST_TEE_VERIFY,
             source: e,
         })?;
 

@@ -8,6 +8,15 @@
 // Domain types (shared with Mormcore — DRY)
 pub use morpheum_primitives::vm::types::{InferenceRequest, TeeAttestation, ZkmlProof};
 
+// Shared VM traits (host contracts — DRY with Mormcore)
+pub use morpheum_primitives::vm::traits::{MemoryBackend, VmHost};
+
+// Canonical host function names (DRY with Mormcore)
+pub use morpheum_primitives::vm::opcodes::{
+    ALL_HOST_FUNCTIONS, HOST_ACTOR_SEND, HOST_INFER, HOST_NAMESPACE, HOST_STORE_CONTEXT,
+    HOST_TEE_VERIFY, HOST_VECTOR_SEARCH, HOST_ZKML_VERIFY,
+};
+
 // Core public API
 pub use crate::{EngineBuilder, LocalMemory, MwvmEngine, MwvmError, Result};
 

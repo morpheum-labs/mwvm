@@ -19,6 +19,7 @@ pub(crate) mod prelude {
     pub use crate::linker::HostRegistry;
     pub use crate::{MwvmError, Result};
     pub use morpheum_primitives::traits::Validatable;
+    pub use morpheum_primitives::vm::opcodes::*;
     pub use morpheum_primitives::vm::types::*;
     pub use tracing::debug;
     pub use wasmtime::{Caller, Linker};

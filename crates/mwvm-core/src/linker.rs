@@ -10,6 +10,8 @@ use std::sync::Arc;
 use tracing::debug;
 use wasmtime::Linker;
 
+use morpheum_primitives::vm::opcodes::HOST_NAMESPACE;
+
 use crate::batcher::ContinuousBatcher;
 use crate::engine::StoreContext;
 use crate::memory::LocalMemory;
@@ -46,7 +48,7 @@ pub fn register_all_hosts(
     linker: &mut Linker<StoreContext>,
     registry: &HostRegistry,
 ) -> Result<()> {
-    debug!("registering MWVM host functions (namespace: morpheum)");
+    debug!(namespace = HOST_NAMESPACE, "registering MWVM host functions");
 
     crate::host::infer::register(linker, registry)?;
     crate::host::store_context::register(linker, registry)?;

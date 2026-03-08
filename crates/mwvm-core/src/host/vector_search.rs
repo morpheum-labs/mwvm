@@ -25,8 +25,8 @@ pub fn register(linker: &mut Linker<StoreContext>, registry: &HostRegistry) -> R
     let reg = registry.clone();
     linker
         .func_wrap(
-            "morpheum",
-            "morpheum_vector_search",
+            HOST_NAMESPACE,
+            HOST_VECTOR_SEARCH,
             move |mut caller: Caller<'_, StoreContext>,
                   query_ptr: i32,
                   query_len: i32,
@@ -88,7 +88,7 @@ pub fn register(linker: &mut Linker<StoreContext>, registry: &HostRegistry) -> R
             },
         )
         .map_err(|e| MwvmError::HostRegistration {
-            name: "morpheum_vector_search",
+            name: HOST_VECTOR_SEARCH,
             source: e,
         })?;
 

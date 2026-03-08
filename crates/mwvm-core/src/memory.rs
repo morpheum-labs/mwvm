@@ -3,14 +3,22 @@
 //! Thread-safe concurrent key-value store with cosine-similarity vector search.
 //! Uses `DashMap` for lock-free KV access and a simple but correct brute-force
 //! ANN implementation suitable for local development workloads.
+//!
+//! Implements [`morpheum_primitives::vm::MemoryBackend`] — the shared contract
+//! between MWVM (off-chain) and Mormcore (on-chain) persistent memory backends.
 
 use std::sync::{
     atomic::{AtomicU64, Ordering},
     Arc, RwLock,
 };
 
+use async_trait::async_trait;
 use dashmap::DashMap;
 use tracing::debug;
+
+use morpheum_primitives::agent::MemoryEntry;
+use morpheum_primitives::errors::PrimitivesError;
+use morpheum_primitives::vm::MemoryBackend;
 
 /// Errors specific to the memory subsystem.
 #[derive(Debug, thiserror::Error)]
@@ -34,6 +42,8 @@ pub enum MemoryError {
 struct StoredVector {
     id: u64,
     embedding: Vec<f32>,
+    /// Blake3 hash of the embedding bytes (computed once at insert time).
+    content_hash: [u8; 32],
 }
 
 /// Search result returned by [`LocalMemory::search`].
@@ -128,7 +138,13 @@ impl LocalMemory {
             });
         }
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
-        let entry = StoredVector { id, embedding };
+        let content_hash: [u8; 32] =
+            blake3::hash(bytemuck::cast_slice(&embedding)).into();
+        let entry = StoredVector {
+            id,
+            embedding,
+            content_hash,
+        };
         self.vectors
             .write()
             .expect("vector lock poisoned")
@@ -144,6 +160,27 @@ impl LocalMemory {
     /// Panics if the internal vector lock is poisoned.
     #[must_use]
     pub fn search(&self, query: &[f32], k: usize) -> Vec<SearchResult> {
+        self.search_scored(query, k)
+            .into_iter()
+            .map(|(score, id, _)| SearchResult { id, score })
+            .collect()
+    }
+
+    /// Returns the configured embedding dimension.
+    #[must_use]
+    pub const fn vector_dim(&self) -> usize {
+        self.vector_dim
+    }
+
+    /// Core scored search — returns `(score, id, content_hash)` tuples.
+    ///
+    /// Shared by the inherent [`search`](Self::search) and the
+    /// [`MemoryBackend::search`] implementation.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal vector lock is poisoned.
+    fn search_scored(&self, query: &[f32], k: usize) -> Vec<(f32, u64, [u8; 32])> {
         if query.len() != self.vector_dim || k == 0 {
             return Vec::new();
         }
@@ -154,7 +191,7 @@ impl LocalMemory {
         }
 
         let vectors = self.vectors.read().expect("vector lock poisoned");
-        let mut scored: Vec<SearchResult> = vectors
+        let mut scored: Vec<(f32, u64, [u8; 32])> = vectors
             .iter()
             .map(|v| {
                 let v_norm = dot(&v.embedding, &v.embedding).sqrt();
@@ -163,29 +200,51 @@ impl LocalMemory {
                 } else {
                     dot(query, &v.embedding) / (query_norm * v_norm)
                 };
-                SearchResult {
-                    id: v.id,
-                    score: similarity,
-                }
+                (similarity, v.id, v.content_hash)
             })
             .collect();
         drop(vectors);
 
-        scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        scored.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
         scored.truncate(k);
         scored
-    }
-
-    /// Returns the configured embedding dimension.
-    #[must_use]
-    pub const fn vector_dim(&self) -> usize {
-        self.vector_dim
     }
 }
 
 impl Default for LocalMemory {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// ─── MemoryBackend trait implementation (DRY contract with Mormcore) ────────
+
+#[async_trait]
+impl MemoryBackend for LocalMemory {
+    async fn load(&self, key: &[u8]) -> morpheum_primitives::errors::Result<Option<Vec<u8>>> {
+        self.load(key)
+            .map_err(|e| PrimitivesError::InvalidMemoryEntry(e.to_string()))
+    }
+
+    async fn store(&self, key: &[u8], value: Vec<u8>) -> morpheum_primitives::errors::Result<()> {
+        self.store(key, value)
+            .map_err(|e| PrimitivesError::InvalidMemoryEntry(e.to_string()))
+    }
+
+    fn search(&self, query: &[f32], k: u32) -> Vec<(f32, MemoryEntry)> {
+        self.search_scored(query, k as usize)
+            .into_iter()
+            .map(|(score, _id, content_hash)| {
+                let entry = MemoryEntry {
+                    content_hash,
+                    agent_hash: [0; 32],
+                    timestamp: 0,
+                    memory_type: 0,
+                    _pad: [0; 7],
+                };
+                (score, entry)
+            })
+            .collect()
     }
 }
 
@@ -229,5 +288,44 @@ mod tests {
     fn vector_dim_mismatch() {
         let mem = LocalMemory::with_dimension(3);
         assert!(mem.insert_vector(vec![1.0, 2.0]).is_err());
+    }
+
+    // ── MemoryBackend trait tests ──────────────────────────────────────
+
+    #[tokio::test]
+    async fn memory_backend_kv_roundtrip() {
+        let mem = LocalMemory::new();
+        MemoryBackend::store(&mem, b"key1", b"value1".to_vec())
+            .await
+            .unwrap();
+        let val = MemoryBackend::load(&mem, b"key1").await.unwrap();
+        assert_eq!(val, Some(b"value1".to_vec()));
+    }
+
+    #[tokio::test]
+    async fn memory_backend_kv_absent() {
+        let mem = LocalMemory::new();
+        let val = MemoryBackend::load(&mem, b"missing").await.unwrap();
+        assert_eq!(val, None);
+    }
+
+    #[test]
+    fn memory_backend_search_returns_memory_entry() {
+        let mem = LocalMemory::with_dimension(3);
+        mem.insert_vector(vec![1.0, 0.0, 0.0]).unwrap();
+        mem.insert_vector(vec![0.9, 0.1, 0.0]).unwrap();
+
+        let results = MemoryBackend::search(&mem, &[1.0, 0.0, 0.0], 2);
+        assert_eq!(results.len(), 2);
+        // Score should be close to 1.0 for the exact match
+        assert!((results[0].0 - 1.0).abs() < 1e-5);
+        // content_hash should be non-zero (computed from embedding bytes)
+        assert!(results[0].1.content_hash.iter().any(|&b| b != 0));
+    }
+
+    #[test]
+    fn local_memory_is_send_sync() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<LocalMemory>();
     }
 }
