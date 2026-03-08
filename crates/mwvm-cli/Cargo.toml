@@ -1,0 +1,39 @@
+[package]
+name = "mwvm-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM CLI — Official command-line interface for running, testing, orchestrating, and serving Morpheum AI agents."
+keywords = ["cli", "agent", "wasm", "mcp", "a2a", "morpheum"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "mwvm"
+path = "main.rs"
+
+[features]
+default = ["full"]
+full = ["mwvm-sdk/full", "mwvm-orchestrator/full", "mwvm-gateway/full"]
+
+[dependencies]
+mwvm-sdk = { path = "../mwvm-sdk" }
+mwvm-orchestrator = { path = "../mwvm-orchestrator" }
+mwvm-gateway = { path = "../mwvm-gateway" }
+clap = { workspace = true, features = ["derive", "env"] }
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

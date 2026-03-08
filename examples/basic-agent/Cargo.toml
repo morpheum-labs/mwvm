@@ -1,0 +1,15 @@
+[package]
+name = "basic-agent"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Minimal example demonstrating the MWVM SDK: create an engine, load a WASM module, and exercise the runtime."
+
+[[bin]]
+name = "basic-agent"
+path = "src/main.rs"
+
+[dependencies]
+mwvm-sdk = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

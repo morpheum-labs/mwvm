@@ -32,3 +32,4 @@ logs/
 /docs/improvements
 /docs/flattened
 /.cargo
+/examples/web-browser-example/node_modules/

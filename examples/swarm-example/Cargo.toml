@@ -1,0 +1,16 @@
+[package]
+name = "swarm-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Example demonstrating multi-agent swarm orchestration using MWVM. Shows how to spawn many agents, broadcast messages, and subscribe to the message bus."
+
+[[bin]]
+name = "swarm-example"
+path = "src/main.rs"
+
+[dependencies]
+mwvm-orchestrator = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

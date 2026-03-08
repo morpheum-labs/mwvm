@@ -1,0 +1,42 @@
+[package]
+name = "mwvm-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM Integration & Parity Tests"
+publish = false
+
+[dev-dependencies]
+mwvm-core = { path = "../mwvm-core" }
+mwvm-sdk = { path = "../mwvm-sdk" }
+mwvm-orchestrator = { path = "../mwvm-orchestrator" }
+mwvm-gateway = { path = "../mwvm-gateway" }
+morpheum-primitives = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+serde_json = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
+axum = { workspace = true }
+axum-test = { workspace = true }
+
+[features]
+default = []
+
+[[test]]
+name = "parity"
+path = "tests/parity.rs"
+harness = true
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+harness = true
+
+[[test]]
+name = "gateway_e2e"
+path = "tests/gateway_e2e.rs"
+harness = true

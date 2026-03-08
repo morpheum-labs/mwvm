@@ -1,0 +1,38 @@
+[package]
+name = "mwvm-gateway"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM Gateway — Production-grade HTTP/SSE/JSON-RPC servers for MCP, A2A, DID/VC, and x402."
+keywords = ["mcp", "a2a", "gateway", "http", "agent", "morpheum"]
+categories = ["web-programming", "network-programming", "api-bindings"]
+
+[lib]
+name = "mwvm_gateway"
+path = "src/lib.rs"
+
+[features]
+default = []
+full = ["mwvm-sdk/full"]
+tee-simulation = ["mwvm-sdk/tee-simulation"]
+
+[dependencies]
+mwvm-sdk = { path = "../mwvm-sdk" }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,50 @@
+{
+  "name": "mwvm-wasm",
+  "version": "0.1.0",
+  "description": "Official WebAssembly + TypeScript bindings for MWVM (Morpheum WASM Virtual Machine). Run high-performance Morpheum AI agents directly in browsers and Node.js with full MCP, A2A, and inference support.",
+  "main": "dist/mwvm_wasm.js",
+  "types": "dist/mwvm_wasm.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target web --out-dir dist --release && tsc",
+    "build:dev": "wasm-pack build --target web --out-dir dist --dev && tsc",
+    "prepublishOnly": "npm run build",
+    "test": "wasm-pack test --node"
+  },
+  "keywords": [
+    "wasm",
+    "webassembly",
+    "agent",
+    "ai",
+    "mcp",
+    "a2a",
+    "morpheum",
+    "typescript",
+    "inference"
+  ],
+  "author": "Morpheum Team <team@morpheum.xyz>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/morpheum/mwvm.git",
+    "directory": "crates/mwvm-wasm"
+  },
+  "homepage": "https://morpheum.xyz",
+  "bugs": {
+    "url": "https://github.com/morpheum/mwvm/issues"
+  },
+  "dependencies": {
+    "@types/node": "^20"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "wasm-pack": "^0.13.1"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  }
+}

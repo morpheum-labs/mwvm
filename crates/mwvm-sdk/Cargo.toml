@@ -1,0 +1,37 @@
+[package]
+name = "mwvm-sdk"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM Rust SDK — High-level, ergonomic API for running Morpheum AI agents locally or connected to the L1."
+keywords = ["wasm", "agent", "ai", "mcp", "a2a"]
+categories = ["api-bindings", "development-tools", "simulation"]
+
+[lib]
+name = "mwvm_sdk"
+path = "src/lib.rs"
+
+[features]
+default = []
+tee-simulation = ["mwvm-core/tee-simulation"]
+full = ["tee-simulation"]
+
+[dependencies]
+mwvm-core = { path = "../mwvm-core" }
+morpheum-primitives = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

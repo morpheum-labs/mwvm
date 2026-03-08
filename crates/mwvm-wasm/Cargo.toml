@@ -1,0 +1,32 @@
+[package]
+name = "mwvm-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Official WebAssembly + TypeScript bindings for MWVM (Morpheum WASM Virtual Machine)."
+keywords = ["wasm", "webassembly", "agent", "mcp", "a2a", "morpheum", "typescript"]
+categories = ["wasm", "web-programming"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "mwvm_wasm"
+
+[features]
+default = ["console_error_panic_hook"]
+console_error_panic_hook = ["dep:console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

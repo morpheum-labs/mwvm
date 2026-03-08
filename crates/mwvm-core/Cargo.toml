@@ -1,0 +1,45 @@
+[package]
+name = "mwvm-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM Core Engine — Rich WASM runtime with AI host functions, local inference, persistent memory, batching, simulation, and zero-copy hosts."
+keywords = ["wasm", "wasmtime", "agent", "mcp", "a2a"]
+categories = ["development-tools", "simulation", "web-programming"]
+
+[lib]
+name = "mwvm_core"
+path = "src/lib.rs"
+
+[features]
+default = []
+tee-simulation = []
+full = ["tee-simulation"]
+
+[dependencies]
+morpheum-primitives = { workspace = true }
+wasmtime = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+flume = { workspace = true }
+bytemuck = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+blake3 = { workspace = true }
+hex = { workspace = true }
+dashmap = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+rand = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,40 @@
+[package]
+name = "mwvm-orchestrator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MWVM Orchestrator — Production-grade multi-agent swarm runtime with message passing, shared memory, and deterministic simulation support."
+keywords = ["agent", "swarm", "orchestration", "multi-agent", "morpheum"]
+categories = ["concurrency", "development-tools", "simulation"]
+
+[lib]
+name = "mwvm_orchestrator"
+path = "src/lib.rs"
+
+[features]
+default = []
+full = ["mwvm-sdk/full"]
+tee-simulation = ["mwvm-sdk/tee-simulation"]
+
+[dependencies]
+mwvm-sdk = { path = "../mwvm-sdk" }
+tokio = { workspace = true }
+flume = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+dashmap = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+rand = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
