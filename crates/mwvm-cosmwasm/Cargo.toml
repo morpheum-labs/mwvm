@@ -1,0 +1,22 @@
+[package]
+name = "mwvm-cosmwasm"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CosmWasm developer tooling for Morpheum — local contract testing, MorpheumMsg bindings, and cw-multi-test integration"
+
+[dependencies]
+morpheum-primitives = { workspace = true }
+
+cosmwasm-std = { version = "2.2", features = ["staking", "stargate"] }
+cosmwasm-vm = "2.2"
+schemars = "0.8"
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+sha2 = "0.10"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

@@ -8,6 +8,7 @@ members = [
     "crates/mwvm-cli",
     "crates/mwvm-wasm",
     "crates/mwvm-tests",
+    "crates/mwvm-cosmwasm",
     "examples/basic-agent",
     "examples/swarm-example",
 ]
