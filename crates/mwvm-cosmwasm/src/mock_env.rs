@@ -182,44 +182,48 @@ impl MockMorpheumApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use morpheum_primitives::address::module_address;
 
     #[test]
     fn test_mock_mint_and_balance() {
+        let alice = module_address("test-alice");
         let mut app = MockMorpheumApp::new();
 
         app.execute_custom(MorpheumMsg::MintTo {
-            recipient: "morm1alice".to_string(),
+            recipient: alice.clone(),
             asset_index: 1,
             amount: Uint128::new(1_000_000),
         })
         .unwrap();
 
-        assert_eq!(app.bank.balance("morm1alice", 1), 1_000_000);
+        assert_eq!(app.bank.balance(&alice, 1), 1_000_000);
         assert_eq!(app.bank.supply(1), 1_000_000);
     }
 
     #[test]
     fn test_mock_burn() {
+        let bob = module_address("test-bob");
         let mut app = MockMorpheumApp::new();
-        app.bank.mint("morm1bob", 1, 500_000);
+        app.bank.mint(&bob, 1, 500_000);
 
         app.execute_custom(MorpheumMsg::BurnFrom {
-            sender: "morm1bob".to_string(),
+            sender: bob.clone(),
             asset_index: 1,
             amount: Uint128::new(200_000),
         })
         .unwrap();
 
-        assert_eq!(app.bank.balance("morm1bob", 1), 300_000);
+        assert_eq!(app.bank.balance(&bob, 1), 300_000);
     }
 
     #[test]
     fn test_mock_burn_insufficient() {
+        let charlie = module_address("test-charlie");
         let mut app = MockMorpheumApp::new();
-        app.bank.mint("morm1charlie", 1, 100);
+        app.bank.mint(&charlie, 1, 100);
 
         let result = app.execute_custom(MorpheumMsg::BurnFrom {
-            sender: "morm1charlie".to_string(),
+            sender: charlie,
             asset_index: 1,
             amount: Uint128::new(200),
         });
@@ -243,12 +247,13 @@ mod tests {
 
     #[test]
     fn test_mock_query_balance() {
+        let dave = module_address("test-dave");
         let mut app = MockMorpheumApp::new();
-        app.bank.mint("morm1dave", 0, 42);
+        app.bank.mint(&dave, 0, 42);
 
         let result = app
             .query_custom(MorpheumQuery::BankBalance {
-                address: "morm1dave".to_string(),
+                address: dave,
                 asset_index: 0,
             })
             .unwrap();

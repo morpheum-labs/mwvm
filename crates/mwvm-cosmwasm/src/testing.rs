@@ -19,7 +19,7 @@ pub fn mock_morpheum_env() -> Env {
         },
         transaction: Some(TransactionInfo { index: 0 }),
         contract: ContractInfo {
-            address: Addr::unchecked("morm1contract0000000000000000000000000000"),
+            address: Addr::unchecked(morpheum_primitives::address::module_address("test-contract")),
         },
     }
 }
@@ -32,9 +32,9 @@ pub fn mock_morpheum_info(sender: &str, funds: &[cosmwasm_std::Coin]) -> Message
     }
 }
 
-/// Generates a deterministic Morpheum test address.
+/// Generates a deterministic, valid bech32 Morpheum test address.
 pub fn test_address(index: u32) -> String {
-    format!("morm1test{:036x}", index)
+    morpheum_primitives::address::address_from_bytes(&index.to_be_bytes())
 }
 
 /// Validates that a contract response contains the expected MorpheumMsg.
@@ -69,19 +69,23 @@ mod tests {
         let env = mock_morpheum_env();
         assert_eq!(env.block.chain_id, "morpheum-testnet-1");
         assert!(env.contract.address.as_str().starts_with("morm1"));
+        assert!(morpheum_primitives::address::is_valid_address(env.contract.address.as_str()));
     }
 
     #[test]
     fn test_mock_info() {
-        let info = mock_morpheum_info("morm1sender", &[]);
-        assert_eq!(info.sender.as_str(), "morm1sender");
+        let sender = test_address(99);
+        let info = mock_morpheum_info(&sender, &[]);
+        assert_eq!(info.sender.as_str(), sender);
         assert!(info.funds.is_empty());
     }
 
     #[test]
     fn test_address_generation() {
         let addr = test_address(0);
-        assert!(addr.starts_with("morm1test"));
-        assert_eq!(addr.len(), "morm1test".len() + 36);
+        assert!(addr.starts_with("morm1"));
+        assert!(morpheum_primitives::address::is_valid_address(&addr));
+        let addr2 = test_address(1);
+        assert_ne!(addr, addr2);
     }
 }
