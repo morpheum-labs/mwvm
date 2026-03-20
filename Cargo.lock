@@ -2415,6 +2415,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "mwvm-evm"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "morpheum-primitives",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "mwvm-gateway"
 version = "0.1.0"
 dependencies = [
@@ -2459,6 +2471,18 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "mwvm-svm"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "morpheum-primitives",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]

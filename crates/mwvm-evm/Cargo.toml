@@ -1,0 +1,18 @@
+[package]
+name = "mwvm-evm"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "EVM developer tooling for Morpheum — local contract testing, precompile bindings, and mock environment"
+
+[dependencies]
+morpheum-primitives = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

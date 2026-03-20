@@ -9,6 +9,8 @@ members = [
     "crates/mwvm-wasm",
     "crates/mwvm-tests",
     "crates/mwvm-cosmwasm",
+    "crates/mwvm-evm",
+    "crates/mwvm-svm",
     "examples/basic-agent",
     "examples/swarm-example",
 ]
