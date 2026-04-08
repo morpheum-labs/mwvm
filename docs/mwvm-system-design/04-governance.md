@@ -20,8 +20,8 @@
 
 ### Why Hybrid Is Optimal
 
-- **Core (Native)**: Constitutional amendments, supermajority voting, global params (CLAMM glide, CLOB fee tiers, bucket whitelist, quotas, insurance rules)
-- **Application (WASM)**: Sub-DAOs, custom bucket templates, CLAMM fee curves, agent-specific policies
+- **Core (Native)**: Constitutional amendments, supermajority voting, global params (CLMM glide, CLOB fee tiers, bucket whitelist, quotas, insurance rules)
+- **Application (WASM)**: Sub-DAOs, custom bucket templates, CLMM fee curves, agent-specific policies
 - WASM policies proposed by agents with KYA/VC; activated only after native Step 9 ratification
 
 ## 2. Native vs WASM Scope
@@ -30,7 +30,7 @@
 
 - Consensus & consensus parameters
 - Global system parameters (resource quotas, rate limits, deposits)
-- Core DeFi primitives: CLAMM, CLOB, Bucket, Multisig, Staking
+- Core DeFi primitives: CLMM, CLOB, Bucket, Multisig, Staking
 - Token economics: $MORM issuance, burn rates, buyback mechanisms
 - High-authority actions: Emergency pause, validator set, slashing, oracle whitelists
 
@@ -39,7 +39,7 @@
 - Sub-DAOs and community governance contracts
 - Custom bucket product templates
 - Agent-specific voting logic and policy execution
-- Custom CLAMM hook templates or dynamic fee curves
+- Custom CLMM hook templates or dynamic fee curves
 - Structured product policies (e.g., auto-rebalancing rules)
 - Application-level treasury for sub-DAOs
 - Reputation and KYA policy extensions
@@ -60,10 +60,10 @@
 - Safe mode templates
 - Parameters: bas_creation_deposit_morph, bas_listing_fee_*, bas_max_products_per_did_per_epoch, etc.
 
-### MORP-GOV-2026-02: CLAMM A2A VC Claims
+### MORP-GOV-2026-02: CLMM A2A VC Claims
 
-- VC claims: clamm_a2a_swap, clamm_a2a_liquidity_add, clamm_a2a_liquidity_remove, clamm_a2a_hook_trigger
-- Quotas: clamm_a2a_max_agents_per_did, clamm_a2a_rate_limit_per_agent
+- VC claims: clmm_a2a_swap, clmm_a2a_liquidity_add, clmm_a2a_liquidity_remove, clmm_a2a_hook_trigger
+- Quotas: clmm_a2a_max_agents_per_did, clmm_a2a_rate_limit_per_agent
 - Stake for "Verified A2A Agent" badge
 
 ### MORP-GOV-2026-03: Bucket A2A VC Claims

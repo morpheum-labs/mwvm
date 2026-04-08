@@ -12,7 +12,7 @@ MWVM security is built on:
 - **Host is God** — WASM = pure compute; all I/O via sandboxed Host API
 - **Object-centric MVCC + capability** — Version checks, ownership, transient memory
 - **KYA/DID + VC delegation** — Scoped, revocable agent permissions (v2.4)
-- **Native-only protocol features** — Multisig, full CLAMM, staking core remain built-in; not exposed to WASM
+- **Native-only protocol features** — Multisig, full CLMM, staking core remain built-in; not exposed to WASM
 
 ## 2. Category-by-Category Security Review
 
