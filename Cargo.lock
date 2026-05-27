@@ -501,10 +501,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "bls12_381_plus"
+version = "0.8.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fa37cf2a8c96054d2dc3d708efe35cc0347014af0d30b86c736b4388ff8491c"
+dependencies = [
+ "arrayref",
+ "elliptic-curve",
+ "ff",
+ "group",
+ "hex",
+ "pairing",
+ "rand_core 0.6.4",
+ "serde",
+ "sha2",
+ "subtle",
+ "zeroize",
+]
+
+[[package]]
 name = "bnum"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e31ea183f6ee62ac8b8a8cf7feddd766317adfb13ff469de57ce033efd6a790"
+
+[[package]]
+name = "bs58"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf88ba1141d185c399bee5288d850d63b8369520c1eafc32a0430b5b6c287bf4"
+dependencies = [
+ "tinyvec",
+]
 
 [[package]]
 name = "bumpalo"
@@ -568,6 +596,9 @@ name = "bytes"
 version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "bytesize"
@@ -1055,6 +1086,7 @@ dependencies = [
  "curve25519-dalek-derive",
  "digest",
  "fiat-crypto",
+ "rand_core 0.6.4",
  "rustc_version",
  "subtle",
  "zeroize",
@@ -1490,6 +1522,7 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0b50bfb653653f9ca9095b427bed08ab8d75a137839d9ad64eb11810d5b6393"
 dependencies = [
+ "bitvec",
  "rand_core 0.6.4",
  "subtle",
 ]
@@ -2331,6 +2364,8 @@ dependencies = [
  "bech32",
  "bincode",
  "blake3",
+ "bls12_381_plus",
+ "bs58",
  "bytemuck",
  "bytes",
  "ed25519-dalek",
@@ -2338,12 +2373,18 @@ dependencies = [
  "k256",
  "morpheum-proto",
  "prost",
+ "rand_chacha",
+ "rand_core 0.6.4",
  "serde",
  "serde-big-array",
+ "serde_json",
  "sha2",
  "sha3",
+ "siphasher",
  "thiserror 2.0.18",
  "uuid",
+ "vrf-r255",
+ "zeroize",
 ]
 
 [[package]]
@@ -2662,6 +2703,15 @@ dependencies = [
  "elliptic-curve",
  "primeorder",
  "sha2",
+]
+
+[[package]]
+name = "pairing"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81fec4625e73cf41ef4bb6846cafa6d44736525f442ba45e407c4a000a13996f"
+dependencies = [
+ "group",
 ]
 
 [[package]]
@@ -3511,6 +3561,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 
 [[package]]
+name = "siphasher"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ee5873ec9cce0195efcb7a4e9507a04cd49aec9c83d0389df45b1ef7ba2e649"
+
+[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4060,6 +4116,18 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vrf-r255"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec2e7c083cc7b8fc3f6a4bc68f92af0e4ec0ec83b2d8a912eeced0aafa7a8379"
+dependencies = [
+ "curve25519-dalek",
+ "rand_core 0.6.4",
+ "sha2",
+ "subtle",
+]
 
 [[package]]
 name = "walkdir"
