@@ -33,3 +33,7 @@ logs/
 /docs/flattened
 /.cargo
 /examples/web-browser-example/node_modules/
+
+# Claude Code — local-only, never committed
+CLAUDE.local.md
+.claude/settings.local.json
