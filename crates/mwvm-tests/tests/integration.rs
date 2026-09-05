@@ -35,7 +35,10 @@ async fn full_agent_lifecycle() {
         .call::<(i32, i32, i32, i32), i32>("morpheum_store_context", (0, 0, 0, 0))
         .expect("morpheum_store_context call failed");
 
-    assert_eq!(result, 0, "morpheum_store_context should return 0 (success)");
+    assert_eq!(
+        result, 0,
+        "morpheum_store_context should return 0 (success)"
+    );
 }
 
 /// Test swarm creation and basic lifecycle.
@@ -109,7 +112,9 @@ async fn gateway_construction() {
 /// Test gateway construction with selective protocols.
 #[tokio::test]
 async fn gateway_mcp_only() {
-    let engine = EngineBuilder::new().build().expect("Failed to build engine");
+    let engine = EngineBuilder::new()
+        .build()
+        .expect("Failed to build engine");
 
     let gateway = mwvm_gateway::Gateway::builder()
         .bind(([127, 0, 0, 1], 0).into())

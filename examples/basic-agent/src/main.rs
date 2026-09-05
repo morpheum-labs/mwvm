@@ -12,9 +12,7 @@ use mwvm_sdk::prelude::*;
 
 fn main() {
     // ── Observability ────────────────────────────────────────────────────
-    tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .init();
+    tracing_subscriber::fmt().with_env_filter("info").init();
 
     info!("Starting basic-agent example");
 
@@ -57,12 +55,12 @@ fn main() {
         .store(b"example:key", b"hello from basic-agent".to_vec())
         .expect("failed to store value");
 
-    let value = memory
-        .load(b"example:key")
-        .expect("failed to load value");
+    let value = memory.load(b"example:key").expect("failed to load value");
 
     info!(
-        value = value.as_deref().map(|v| std::str::from_utf8(v).unwrap_or("<non-utf8>")),
+        value = value
+            .as_deref()
+            .map(|v| std::str::from_utf8(v).unwrap_or("<non-utf8>")),
         "Read back from LocalMemory"
     );
 
@@ -74,14 +72,25 @@ fn main() {
     // LocalMemory also supports cosine-similarity vector search.
     let vec_memory = LocalMemory::with_dimension(3);
 
-    vec_memory.insert_vector(vec![1.0, 0.0, 0.0]).expect("insert failed");
-    vec_memory.insert_vector(vec![0.0, 1.0, 0.0]).expect("insert failed");
-    vec_memory.insert_vector(vec![0.9, 0.1, 0.0]).expect("insert failed");
+    vec_memory
+        .insert_vector(vec![1.0, 0.0, 0.0])
+        .expect("insert failed");
+    vec_memory
+        .insert_vector(vec![0.0, 1.0, 0.0])
+        .expect("insert failed");
+    vec_memory
+        .insert_vector(vec![0.9, 0.1, 0.0])
+        .expect("insert failed");
 
     let results = vec_memory.search(&[1.0, 0.0, 0.0], 2);
     info!(top_k = results.len(), "Vector search completed");
     for (rank, result) in results.iter().enumerate() {
-        info!(rank = rank + 1, id = result.id, score = result.score, "search result");
+        info!(
+            rank = rank + 1,
+            id = result.id,
+            score = result.score,
+            "search result"
+        );
     }
 
     // ── Call a WASM export (if present) ─────────────────────────────────

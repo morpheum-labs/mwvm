@@ -181,11 +181,7 @@ impl AgentRuntime {
     ///
     /// Returns [`MwvmError::Wasm`] if the function cannot be found or
     /// the call traps.
-    pub fn call<Params, Results>(
-        &mut self,
-        func_name: &str,
-        args: Params,
-    ) -> Result<Results>
+    pub fn call<Params, Results>(&mut self, func_name: &str, args: Params) -> Result<Results>
     where
         Params: wasmtime::WasmParams,
         Results: wasmtime::WasmResults,

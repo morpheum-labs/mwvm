@@ -8,11 +8,7 @@
 
 use std::sync::Arc;
 
-use axum::{
-    extract::State,
-    routing::post,
-    Json, Router,
-};
+use axum::{extract::State, routing::post, Json, Router};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 

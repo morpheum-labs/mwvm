@@ -138,8 +138,7 @@ impl LocalMemory {
             });
         }
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
-        let content_hash: [u8; 32] =
-            blake3::hash(bytemuck::cast_slice(&embedding)).into();
+        let content_hash: [u8; 32] = blake3::hash(bytemuck::cast_slice(&embedding)).into();
         let entry = StoredVector {
             id,
             embedding,

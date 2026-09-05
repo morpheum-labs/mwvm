@@ -40,10 +40,7 @@ async fn main() {
         .build()
         .expect("failed to build swarm");
 
-    info!(
-        agent_count = swarm.len(),
-        "Swarm created successfully"
-    );
+    info!(agent_count = swarm.len(), "Swarm created successfully");
 
     // ── Subscribe to the broadcast topic ────────────────────────────────
     //

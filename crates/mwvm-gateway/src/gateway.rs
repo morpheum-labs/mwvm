@@ -169,11 +169,9 @@ impl Gateway {
     /// Returns [`GatewayError::Config`] if the bind address is unavailable,
     /// or [`GatewayError::Protocol`] if the server encounters an I/O error.
     pub async fn serve(self) -> Result<()> {
-        let listener = TcpListener::bind(self.config.bind)
-            .await
-            .map_err(|e| {
-                GatewayError::Config(format!("failed to bind {}: {e}", self.config.bind))
-            })?;
+        let listener = TcpListener::bind(self.config.bind).await.map_err(|e| {
+            GatewayError::Config(format!("failed to bind {}: {e}", self.config.bind))
+        })?;
 
         info!(
             bind = %self.config.bind,

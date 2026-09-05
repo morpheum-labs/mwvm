@@ -64,9 +64,7 @@ impl SwarmBuilder {
             .ok_or_else(|| OrchestratorError::Config("base_wasm is required".into()))?;
 
         if self.agent_count == 0 {
-            return Err(OrchestratorError::Config(
-                "agent_count must be > 0".into(),
-            ));
+            return Err(OrchestratorError::Config("agent_count must be > 0".into()));
         }
 
         let engine = mwvm_sdk::EngineBuilder::new()

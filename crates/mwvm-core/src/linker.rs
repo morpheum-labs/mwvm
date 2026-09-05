@@ -48,7 +48,10 @@ pub fn register_all_hosts(
     linker: &mut Linker<StoreContext>,
     registry: &HostRegistry,
 ) -> Result<()> {
-    debug!(namespace = HOST_NAMESPACE, "registering MWVM host functions");
+    debug!(
+        namespace = HOST_NAMESPACE,
+        "registering MWVM host functions"
+    );
 
     crate::host::infer::register(linker, registry)?;
     crate::host::store_context::register(linker, registry)?;

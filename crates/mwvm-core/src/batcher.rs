@@ -107,9 +107,9 @@ async fn worker_loop(rx: Receiver<BatcherRequest>) {
 
     // Drain remaining requests on shutdown.
     for req in batch {
-        let _ = req
-            .responder
-            .send(Err(MwvmError::Batching(anyhow::anyhow!("batcher shutting down"))));
+        let _ = req.responder.send(Err(MwvmError::Batching(anyhow::anyhow!(
+            "batcher shutting down"
+        ))));
     }
 }
 
@@ -175,9 +175,7 @@ mod tests {
 
         for _ in 0u8..10 {
             let b = batcher.clone();
-            handles.push(tokio::spawn(async move {
-                b.infer(make_request(64)).await
-            }));
+            handles.push(tokio::spawn(async move { b.infer(make_request(64)).await }));
         }
 
         for h in handles {

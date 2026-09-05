@@ -131,14 +131,10 @@ impl Simulator {
     #[allow(dead_code)]
     pub(crate) async fn record_inference(&self, req: InferenceRequest, response: Vec<u8>) {
         if self.mode == SimulationMode::Replay {
-            self.replay_trace
-                .lock()
-                .await
-                .entries
-                .push(ReplayEntry {
-                    request: req,
-                    response,
-                });
+            self.replay_trace.lock().await.entries.push(ReplayEntry {
+                request: req,
+                response,
+            });
         }
     }
 
