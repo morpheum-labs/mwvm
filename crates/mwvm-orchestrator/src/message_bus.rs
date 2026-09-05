@@ -37,11 +37,15 @@ pub enum SystemEvent {
     /// Graceful shutdown signal.
     Shutdown,
     /// An agent joined the swarm.
-    AgentJoined(/// Agent ID.
-        u64),
+    AgentJoined(
+        /// Agent ID.
+        u64,
+    ),
     /// An agent left the swarm.
-    AgentLeft(/// Agent ID.
-        u64),
+    AgentLeft(
+        /// Agent ID.
+        u64,
+    ),
 }
 
 /// RAII subscription handle — automatically unsubscribes when dropped.

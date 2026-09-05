@@ -75,7 +75,9 @@ async fn gateway_full_e2e() {
 /// Test gateway with only MCP enabled (selective protocol test).
 #[tokio::test]
 async fn gateway_mcp_only() {
-    let engine = EngineBuilder::new().build().expect("Failed to build engine");
+    let engine = EngineBuilder::new()
+        .build()
+        .expect("Failed to build engine");
 
     let router = mwvm_gateway::Gateway::builder()
         .bind(([127, 0, 0, 1], 0).into())

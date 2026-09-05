@@ -111,9 +111,7 @@ impl AgentBuilder {
         builder = builder.with_max_instances(cfg.max_concurrent_instances);
 
         let engine = builder.build().map_err(SdkError::Core)?;
-        let runtime = engine
-            .create_agent_runtime(&wasm)
-            .map_err(SdkError::Core)?;
+        let runtime = engine.create_agent_runtime(&wasm).map_err(SdkError::Core)?;
 
         info!("Agent built successfully");
         Ok(Agent { runtime, engine })

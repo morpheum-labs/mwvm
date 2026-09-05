@@ -57,8 +57,7 @@ pub fn register(linker: &mut Linker<StoreContext>, registry: &HostRegistry) -> R
 
                 // Deterministic mailbox key.
                 let target_hash: [u8; 32] = blake3::hash(&target_bytes).into();
-                let mailbox_key =
-                    format!("messages/to/{}", hex::encode(target_hash)).into_bytes();
+                let mailbox_key = format!("messages/to/{}", hex::encode(target_hash)).into_bytes();
 
                 reg.memory
                     .store(&mailbox_key, msg_bytes)
