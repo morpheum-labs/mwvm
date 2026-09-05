@@ -1,4 +1,4 @@
-<!-- morpheum-claude-framework v2026-08-07 — shared blocks synced by sync.sh; edit prose freely -->
+<!-- morpheum-workspace v2026-09-05 — shared blocks synced by sync.sh; edit prose freely -->
 # mwvm
 
 The Morpheum WASM VM: an off-chain runtime (wasmtime) for building and testing AI agents
