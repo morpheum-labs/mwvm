@@ -59,13 +59,13 @@ impl McpToolCall {
     }
 
     /// Serialised JSON arguments.
-    #[wasm_bindgen(getter)]
+    #[wasm_bindgen(getter, js_name = argsJson)]
     pub fn args_json(&self) -> String {
         self.args_json.clone()
     }
 
     /// Encode as a JSON-RPC request body ready to POST to `/mcp`.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = toJsonRpc)]
     pub fn to_json_rpc(&self) -> String {
         serde_json::json!({
             "method": "tools/call",
