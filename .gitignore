@@ -37,3 +37,6 @@ logs/
 # Claude Code — local-only, never committed
 CLAUDE.local.md
 .claude/settings.local.json
+
+# GitNexus code index (local, machine-only)
+.gitnexus/
