@@ -1,0 +1,10 @@
+2026-10-30T23:14:40.140844Z  INFO basic_agent: Starting basic-agent example
+2026-10-30T23:14:40.141144Z  INFO basic_agent: Engine created model_serving=true
+2026-10-30T23:14:40.141536Z  INFO basic_agent: AgentRuntime instantiated successfully
+2026-10-30T23:14:40.141546Z  INFO basic_agent: Read back from LocalMemory value="hello from basic-agent"
+2026-10-30T23:14:40.141549Z  INFO basic_agent: Memory round-trip verified
+2026-10-30T23:14:40.141554Z  INFO basic_agent: Vector search completed top_k=2
+2026-10-30T23:14:40.141555Z  INFO basic_agent: search result rank=1 id=1 score=1.0
+2026-10-30T23:14:40.141559Z  INFO basic_agent: search result rank=2 id=3 score=0.9938837289810181
+2026-10-30T23:14:40.141562Z  INFO basic_agent: Expected: _start not found in minimal module e=wasm engine error: failed to find function export `_start`
+2026-10-30T23:14:40.141566Z  INFO basic_agent: basic-agent example completed successfully

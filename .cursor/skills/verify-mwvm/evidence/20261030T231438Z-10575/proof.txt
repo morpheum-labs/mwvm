@@ -1,0 +1,8 @@
+feature=basic-agent
+entry=cargo run -p basic-agent
+head=4588abac51544127bc3f486e9cb1dc3e5c57ca5b
+rustc=rustc 1.99.1 (58cf8f9c3 2026-10-13)
+exit=0
+sibling=/workspace/../morpheum-primitives/Cargo.toml
+sibling_lib_sha256=7cf2f3987509275d9f3427a93d8d5d276c58c7fa08383824d6f1ba1a8b315b73
+result=PASS

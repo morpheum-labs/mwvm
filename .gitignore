@@ -21,6 +21,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+# Verification transcripts keep their launch log.
+!.cursor/skills/verify-mwvm/evidence/**/*.log
 
 # Build artifacts
 *.d

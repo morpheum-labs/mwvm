@@ -7,10 +7,14 @@
 //! - Interacting with the engine's shared persistent memory
 //!
 //! Run with: `cargo run -p basic-agent`
+//!
+//! Model serving starts a Tokio batcher inside `EngineBuilder::build`, so this
+//! process needs a runtime before the engine is constructed.
 
 use mwvm_sdk::prelude::*;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // ── Observability ────────────────────────────────────────────────────
     tracing_subscriber::fmt().with_env_filter("info").init();
 
